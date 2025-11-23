@@ -16,20 +16,26 @@ int16_t Can2Send[4]={0};
 uint8_t RecodeGimbal = 0;
 
 void GimbalInit(){
-		Gimbal.Mode = Gyro;
-		GimbalCtrl = gNormal;
-		GimbalInitFlag = 1;
-		RecodeGimbal =   0;
-		Time.GimbalInit = 0;
-	PID_init(&Gimbal_Place_pid_Yaw[GYRO],2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Yaw[GYRO],			  3,3,0,  			-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);
-	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,   	-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
+	Gimbal.Mode = Gyro;
+	GimbalCtrl = gNormal;
+	GimbalInitFlag = 1;
+	RecodeGimbal =   0;
+	Time.GimbalInit = 0;
+	
+	PID_init(&Gimbal_Speed_pid_Pitch[INIT],2.0f*Pi,2.0f*Pi,0,   0,0,0,0,		0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Place_pid_Pitch[INIT],			3,3,0,  				0,0,0,0,		0.001,0,0,0,0,Integral_Limit);
+	PID_init(&Gimbal_Place_pid_Yaw[INIT],2.0f*Pi,2.0f*Pi,0,     0,0,0,0,		0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Speed_pid_Yaw[INIT],				3,3,0,  	    	0,0,0,0,		0.001,0,0,0,0,Integral_Limit);
 
 	PID_init(&Gimbal_Speed_pid_Pitch[MECH],6.0f*Pi,6.0f*Pi,0, 0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit&&ChangingIntegralRate);	
 	PID_init(&Gimbal_Place_pid_Pitch[MECH],			3,3,0,   		  0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit&&ChangingIntegralRate);
+	PID_init(&Gimbal_Place_pid_Yaw[GYRO],2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Speed_pid_Yaw[GYRO],			  3,3,0,  			-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);
+
 	PID_init(&Gimbal_Place_pid_Pitch[AIM],6.0f*Pi,6.0f*Pi,0, 	0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
 	PID_init(&Gimbal_Speed_pid_Pitch[AIM],			3,1.5f,0,  		0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,   	-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
 }
 
 void GimbalCtrl_Decide(){
@@ -281,6 +287,7 @@ void Gimbal_Send(){
 }
 
 void MedianInit(){
+		int16_t Can2Send[4] = {0};
     static int16_t Expect_PitchInit = 0.0f;
     static int16_t Expect_YawInit   = 0.0f;
     static float   Expect_YawRamp   = 0.0f;
@@ -309,12 +316,12 @@ void MedianInit(){
         Expect_PitchInit = QuickCentering(CurrentPitch, Pitch_Mid);
         Expect_PitchRamp = RAMP_float((float)Expect_PitchInit, Expect_PitchRamp, 50); 
         PID_Calc(&Gimbal_Place_pid_Pitch[INIT], CurrentPitch, Expect_PitchRamp);
-        PID_Calc(&Gimbal_Speed_pid_Pitch[INIT], Gimbal_Motor[PITCH].Speed, Gimbal_Place_pid_Pitch[INIT].Output);
+        PID_Calc(&Gimbal_Speed_pid_Pitch[INIT], Gimbal.Speed[Mech].Pitch, Gimbal_Place_pid_Pitch[INIT].Output);
 
         Can2Send[YAW]   = (int16_t)(Gimbal_Speed_pid_Yaw[INIT].Output  * current_to_out);
         Can2Send[PITCH] = (int16_t)(Gimbal_Speed_pid_Pitch[INIT].Output* current_to_out);
 		
-		limit(Can2Send_Gimbal[GIMBAL_SUM],GM6020_Limit,-GM6020_Limit);
+		limit(Can2Send[GIMBAL_SUM],GM6020_Limit,-GM6020_Limit);
 
 #if GIMBAL_RUN
         MotorSend(&hcan2, 0x1FE, Can2Send);

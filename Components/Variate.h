@@ -1,4 +1,4 @@
- #ifndef __VARIATE_H
+#ifndef __VARIATE_H
 #define __VARIATE_H
 #include "FreeRTOS.h"
 #include "task.h"
@@ -12,7 +12,6 @@
 #include "WatchDog.h"
 #include "PID.h"
 #include "IMU.h"
-#include "Serialport.h"
 #include "Data_Exchange.h"
 
 #include "stdbool.h"
@@ -20,15 +19,8 @@
 #define CHASSIS_RUN 1
 #define GIMBAL_RUN  1
 #define SHOOT_RUN   1
-#define SerialChannel 4
 
 #define current_to_out 16384.0f / 3.0f
-enum SerialType{
-FireWater = 0,
-JustFloat = 1,
-RawData   = 2
-};
-extern float Serialport [SerialChannel];
 
 #define RobotID 1 	//0 1ç™½0é»‘
 #define Pimu_ADD_limit 10
@@ -46,7 +38,7 @@ extern float Serialport [SerialChannel];
 #define P_LOSE_limit 167
 #elif RobotID == 1
 #define Yaw_Mid_Front 4670
-#define Pitch_Mid 1411
+#define Pitch_Mid 1285
 #define P_ADD_limit 80
 #define P_LOSE_limit 30
 
@@ -99,7 +91,6 @@ enum{
 extern int StuckFlag;
 /* ÔÆÌ¨³õÊ¼»¯±êÖ¾Î» */
 extern uint8_t GimbalInitFlag;
-enum Ins_Flag;
 
 /* ÏµÍ³×´Ì¬ */
 typedef enum{

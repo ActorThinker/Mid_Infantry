@@ -50,19 +50,19 @@ osStatus_t IMU_IfDataError( void )
 /* 斜坡函数（float） */
 float RAMP_float( float final, float now, float ramp )
 {
-    float	buffer =final - now;
-    if (buffer > 0){
-        if (buffer > ramp)  
-                now += ramp;  
-        else
-                now += buffer;
-    } else {
-        if (buffer < -ramp)
-                now += -ramp;
-        else
-                now += buffer;
-    }
-    return now;
+	float	buffer = final - now;
+	if (buffer > 0){
+			if (buffer > ramp)  
+							now += ramp;  
+			else
+							now += buffer;
+	} else {
+			if (buffer < -ramp)
+							now += -ramp;
+			else
+							now += buffer;
+	}
+	return now;
 }
 
 /**

@@ -1,5 +1,5 @@
 #include "Init_Task.h"
-
+WatchDog_TypeDef Gimbal_Dog[GIMBAL_SUM], Shoot_Dog[FRIC_SUM], Pluck_Dog, Down_Dog, PC_Dog,Referee_Dog;
 void Init_Task(){
 	taskENTER_CRITICAL();
 

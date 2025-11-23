@@ -14,7 +14,6 @@
 typedef struct
 {
     float q[4]; // 四元数估计值
-
     float Gyro[3];  // 角速度
     float Accel[3]; // 加速度
     float MotionAccel_b[3]; // 机体坐标加速度

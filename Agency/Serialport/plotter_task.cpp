@@ -9,6 +9,6 @@ at::Plotter plotter(&huart1);
 extern "C" void Plotter_Task(){
 	while(true){
 		plotter.plot(INS.Roll,INS.Pitch,INS.Yaw);
-		osDelay(1);
+		osDelay(10);
 	}
 }

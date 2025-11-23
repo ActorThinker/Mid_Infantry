@@ -1,31 +1,17 @@
-/**
- * @file    motor.h
- * @author  yao
- * @date    1-May-2020
- * @brief   电机驱动模块头文件
- */
-
 #ifndef _MOTOR_H_
 #define _MOTOR_H_
 
 #include "RMLibHead.h"
-
-RMLIB_CPP_BEGIN
 
 #ifdef HAL_CAN_MODULE_ENABLED
 #include "CANDrive.h"
 
 #define RM3508_LIMIT 16384  //!<@brief RM3508的输出限幅
 #define GM6020_LIMIT 25000  //!<@brief GM6020的输出限幅
-#define RM3510_LIMIT 32767  //!<@brief RM3510的输出限幅
-#define GM3510_LIMIT 29000  //!<@brief GM3510的输出限幅
 #define M2006_LIMIT  10000  //!<@brief M2006 的输出限幅
-#define RM6623_LIMIT 32767  //!<@brief RM6623的输出限幅(找不到了)
+
 #define DM4310_LIMIT 16384
-
 #define GM6020_Limit 16384  //6020电流输出限幅
-
-
 /**
  * @brief RM3508电机数据结构体
  */
@@ -47,7 +33,6 @@ typedef struct {
         float constant;         //!<@brief 常量
     } PowerCOF;                 //!<@brief 计算功率所用的系数,由MATLAB拟合
 } RM3508_TypeDef;
-
 /**
  * @brief GM6020电机数据结构体
  */
@@ -63,28 +48,6 @@ typedef struct {
     uint8_t flag;               //!<@brief 统计连续机械角度标志位，用于解决一圈偏差的问题，但是无法解决开机时机械角度为0得情况,用户使用时应忽略，不要对其进行赋值
     uint16_t Motor_center;
 } GM6020_TypeDef;
-
-/**
- * @brief RM3510电机数据结构体
- */
-typedef struct {
-    uint16_t MchanicalAngle;    //!<@brief 机械角度
-    int16_t Speed;              //!<@brief 转速
-} RM3510_TypeDef;
-
-/**
- * @brief GM3510电机数据结构体
- */
-typedef struct {
-    uint16_t MchanicalAngle;    //!<@brief 机械角度
-    int16_t OutputTorque;       //!<@brief 输出扭矩
-    uint16_t LsatAngle;         //!<@brief 上一次的机械角度
-    int16_t r;                  //!<@brief 圈数
-    int32_t Angle;              //!<@brief 连续化机械角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
-    float Angle_DEG;            //!<@brief 连续化角度制角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
-    uint8_t flag;               //!<@brief 统计连续机械角度标志位，用于解决一圈偏差的问题，用户使用时应忽略，不要对其进行赋值
-} GM3510_TypeDef;
-
 /**
  * @brief M2006电机数据结构体
  */
@@ -97,21 +60,9 @@ typedef struct {
     float Angle_DEG;            //!<@brief 连续化角度制角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
     uint8_t flag;               //!<@brief 统计连续机械角度标志位，用于解决一圈偏差的问题，用户使用时应忽略，不要对其进行赋值
 } M2006_TypeDef;
-
 /**
- * @brief RM6623电机数据结构体
+ * @brief DM4310电机数据结构体
  */
-typedef struct {
-    uint16_t MchanicalAngle;    //!<@brief 机械角度
-    int16_t TorqueCurrent;      //!<@brief 转矩电流
-    int16_t SetTorqueCurrent;   //!<@brief 设定转矩电流
-    uint16_t LsatAngle;         //!<@brief 上一次的机械角度
-    int16_t r;                  //!<@brief 圈数
-    int32_t Angle;              //!<@brief 连续化机械角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
-    float Angle_DEG;            //!<@brief 连续化角度制角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
-    uint8_t flag;               //!<@brief 统计连续机械角度标志位，用于解决一圈偏差的问题，用户使用时应忽略，不要对其进行赋值
-} RM6623_TypeDef;
-
 typedef struct {
     uint16_t MchanicalAngle;    //!<@brief 机械角度
     int16_t Speed;              //!<@brief 转速
@@ -123,21 +74,6 @@ typedef struct {
     int32_t Angle;              //!<@brief 连续化机械角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
     float Angle_DEG;            //!<@brief 连续化角度制角度 @warning 由于启动时角度不确定，启动时连续化角度可能有一圈的偏差
 } DM4310_TypeDef;
-
-/**
- * @brief RM6623数据接收
- * @param[out] Dst RM6623电机数据结构体指针
- * @param[in] Data CAN数据帧指针
- */
-void RM6623_Receive(RM6623_TypeDef *Dst, uint8_t *Data);
-
-/**
- * @brief RM3510数据接收
- * @param[out] Dst RM3510电机数据结构体指针
- * @param[in] Data CAN数据帧指针
- */
-void RM3510_Receive(RM3510_TypeDef *Dst, uint8_t *Data);
-
 /**
  * @brief 设置RM3508功率计算参数
  * @param[out] Dst RM3510电机数据结构体指针
@@ -152,36 +88,29 @@ static inline void RM3508_SetPowerCOF(RM3508_TypeDef *Dst, float cc, float sc, f
     Dst->PowerCOF.ss = ss;
     Dst->PowerCOF.constant = constant;
 }
-
 /**
  * @brief RM3508数据接收
  * @param[out] Dst RM3508电机数据结构体指针
  * @param[in] Data CAN数据帧指针
  */
 void RM3508_Receive(RM3508_TypeDef *Dst, uint8_t *Data);
-
 /**
  * @brief GM6020数据接收
  * @param[out] Dst GM6020电机数据结构体指针
  * @param[in] Data CAN数据帧指针
  */
-
 void GM6020_Receive(GM6020_TypeDef *Dst, uint8_t *Data);
-
 /**
  * @brief M2006数据接收
  * @param[out] Dst M2006电机数据结构体指针
  * @param[in] Data CAN数据帧指针
  */
 void M2006_Receive(M2006_TypeDef *Dst, uint8_t *Data);
-
 /**
- * @brief GM3510数据接收
- * @param[out] Dst GM3510电机数据结构体指针
+ * @brief DM4310数据接收
+ * @param[out] Dst DM4310电机数据结构体指针
  * @param[in] Data CAN数据帧指针
  */
-void GM3510_Receive(GM3510_TypeDef *Dst, uint8_t *Data);
-
 void DM4310_Receive(DM4310_TypeDef *Dst, uint8_t *Data);
 /**
  * @brief 发送电机控制信号
@@ -191,7 +120,6 @@ void DM4310_Receive(DM4310_TypeDef *Dst, uint8_t *Data);
  * @return HAL Status structures definition
  */
 HAL_StatusTypeDef MotorSend(CAN_HandleTypeDef *hcan, uint32_t StdId, int16_t *Data);
-
 /**
  * @brief 寻找最短到达路径
  * @details
@@ -214,7 +142,5 @@ int16_t QuickCentering(uint16_t Mch, uint16_t Exp);
 
 osStatus_t DM4310_Motor_Temp(DM4310_TypeDef *dst);
 #endif
-
-RMLIB_CPP_END
 
 #endif

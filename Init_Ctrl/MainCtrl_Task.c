@@ -2,8 +2,7 @@
 
 void MainCtrl_Task(){
 	static portTickType currentTime;
-	for (;;)
-	{
+	for (;;){
     static uint8_t cnt=0;
 		currentTime = xTaskGetTickCount(); // 获取当前系统时间
 		if(DeviceState.Remote_State != Device_Online){
@@ -14,29 +13,23 @@ void MainCtrl_Task(){
       for(int i = 0;i<4;i++)Key_ch[i] = 0;
 			SystemState = SYSTEM_STARTING; // 系统恢复至重启状态
 			GimbalInitFlag = 0;
-
 		} else {
 			/* 恢复任务 */
 			osThreadResume(Chassis_Task_handle);
 			osThreadResume(Shoot_Task_handle);
 			osThreadResume(Gimbal_Task_handle);
-	      
 		}
 		if(RC_CtrlData.key.Z){
 		Gimbal_action.Key = 1;//Z键--Key=1刷新UI Ctrl&&Shift--Key=2解除功率限制
-		
 		}
 	 	else if(RC_CtrlData.key.Ctrl){
 		Gimbal_action.Key = 2;//Z键--Key=1刷新UI Ctrl&&Shift--Key=2解除功率限制	
 		}else{
 		Gimbal_action.Key = 0;//Z键--Key=1刷新UI Ctrl&&Shift--Key=2解除功率限制			
 		}
-
-//		Gimbal_action.Key = RC_CtrlData.key.Z + RC_CtrlData.key.Ctrl * 2;//Z键--Key=1刷新UI Ctrl--Key=2解除功率限制
-			
-	    switch(cnt++){
-        case 0:CAN_Send_StdDataFrame(&hcan2, 0x120, (uint8_t *)&Gimbal_action);break;
-        case 1:CAN_Send_StdDataFrame(&hcan2, 0x130, (uint8_t *)&Gimbal_data);cnt = 0;break;
+	  switch(cnt++){
+      case 0:CAN_Send_StdDataFrame(&hcan2, 0x120, (uint8_t *)&Gimbal_action);			 break;
+      case 1:CAN_Send_StdDataFrame(&hcan2, 0x130, (uint8_t *)&Gimbal_data);cnt = 0;break;
     }
 		WatchDog_Polling(); ///软件看门狗轮询		
 
@@ -46,7 +39,7 @@ void MainCtrl_Task(){
 /* 3个遥控器数据处理函数 */
 void RemoteControlProcess(Remote *rc)
 {
-   RemoteMode=REMOTE_INPUT;
+  RemoteMode=REMOTE_INPUT;
 	
 	Key_ch[0] =(float )(rc->ch0 -1024)/660;
 	Key_ch[1] =(float )(rc->ch1 -1024)/660;

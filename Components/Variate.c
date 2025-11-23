@@ -61,27 +61,9 @@ AIM_Typedef Aim_Data;
 uint8_t NormalModeFlag = 0,GyroscopeModeFlag = 0;
 /* 裁判系统 */
 Chassis_board_send_t Referee_data_Rx;      // 上下板通信接收
-
-/*******************************************************************************/
-/* 串口调试助手                                                                */
-/*******************************************************************************/
-
-float Serialport [SerialChannel];
-
-/*******************************************************************************/
-/* 看门狗		                                                               */
-/*******************************************************************************/
-
-/* 看门狗结构体定义 */
-WatchDog_TypeDef Remote_Dog, Down_Dog, Gimbal_Dog[GIMBAL_SUM], Shoot_Dog[FRIC_SUM], Pluck_Dog, IMU_Dog, PC_Dog,Referee_Dog;
 /* 设备状态 */
 eSystemState SystemState;
 DeviceStates DeviceState;
-
 /* 机构运行状态 */
 eAimAction AimAction         = AIM_STOP;
 eMidMode MidMode             = FRONT;
-
-/*******************************************************************************/
-/* USB通信		                                                               */
-/*******************************************************************************/

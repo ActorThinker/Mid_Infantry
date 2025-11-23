@@ -1408,11 +1408,6 @@
               <FilePath>..\Components\Variate.c</FilePath>
             </File>
             <File>
-              <FileName>Variate.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Components\Variate.h</FilePath>
-            </File>
-            <File>
               <FileName>Function.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Components\Function.c</FilePath>
@@ -1461,11 +1456,6 @@
               <FileName>BMI088Middleware.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Components\Devices\BMI088Middleware.c</FilePath>
-            </File>
-            <File>
-              <FileName>mahony_filter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Components\Algorithm\mahony\mahony_filter.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -1905,11 +1895,6 @@
         <Group>
           <GroupName>Serialport</GroupName>
           <Files>
-            <File>
-              <FileName>Serialport.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Agency\Serialport\Serialport.c</FilePath>
-            </File>
             <File>
               <FileName>plotter.cpp</FileName>
               <FileType>8</FileType>

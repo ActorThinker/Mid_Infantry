@@ -54,7 +54,7 @@
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+WatchDog_TypeDef Remote_Dog;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/

@@ -23,17 +23,6 @@ static inline float GetChassisMotorPower(int speed, int current, struct PowerCOF
             pcof->constant);
 }
 
-void RM6623_Receive(RM6623_TypeDef *Dst, uint8_t *Data) {
-    Dst->MchanicalAngle = (uint16_t)(Data[0] << 8 | Data[1]);
-    Dst->TorqueCurrent = (uint16_t)(Data[2] << 8 | Data[3]);
-    Dst->SetTorqueCurrent = (uint16_t)(Data[4] << 8 | Data[5]);
-}
-
-void RM3510_Receive(RM3510_TypeDef *Dst, uint8_t *Data) {
-    Dst->MchanicalAngle = (uint16_t)(Data[0] << 8 | Data[1]);
-    Dst->Speed = (int16_t)(Data[2] << 8 | Data[3]);
-}
-
 void RM3508_Receive(RM3508_TypeDef *Dst, uint8_t *Data) {
     Dst->MchanicalAngle = (uint16_t)(Data[0] << 8 | Data[1]);
     Dst->Speed = (int16_t)(Data[2] << 8 | Data[3]);
@@ -57,26 +46,6 @@ void RM3508_Receive(RM3508_TypeDef *Dst, uint8_t *Data) {
     Dst->LsatAngle = Dst->MchanicalAngle;
 }
 
-void GM3510_Receive(GM3510_TypeDef *Dst, uint8_t *Data) {
-    Dst->MchanicalAngle = (uint16_t)(Data[0] << 8 | Data[1]);
-    Dst->OutputTorque = (uint16_t)(Data[2] << 8 | Data[3]);
-
-    int16_t diff = Dst->MchanicalAngle - Dst->LsatAngle;
-
-    if(diff != Dst->MchanicalAngle)
-        Dst->flag = 1;
-    if(Dst->flag == 1)
-    {
-        if (diff > 4000)
-            Dst->r--;
-        if (diff < -4000)
-            Dst->r++;
-    }
-
-    Dst->Angle = Dst->r * 8192 + Dst->MchanicalAngle;
-    Dst->Angle_DEG = Dst->Angle * 0.0439453125f;
-    Dst->LsatAngle = Dst->MchanicalAngle;
-}
 
 void GM6020_Receive(GM6020_TypeDef *Dst, uint8_t *Data) {
     Dst->MchanicalAngle = (uint16_t)(Data[0] << 8 | Data[1]);
@@ -161,7 +130,6 @@ int16_t QuickCentering(uint16_t current, uint16_t target)
     } else if (diff < -4096) {
         target +=8192;
     }
-
     return target;
 }
 
