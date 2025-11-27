@@ -233,6 +233,13 @@ void Shoot_Console(){
 			limit(Shoot_Speed_PID[LEFT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
 			limit(Shoot_Speed_PID[RIGHT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
 }
+void Aim_Shoot(){
+	Aim_Data.AimShoot = AimReady;
+	if(GimbalCtrl == gAim ){
+		 if(ReceiveVisionData.data.dis != -1	&&	ReceiveVisionData.data.FireFlag == 1)
+					Aim_Data.AimShoot = AimFire;
+	}
+}
 void Shoot_Send(){
         Can1Send_Shoot[0] = (int16_t)Pluck_Speed_PID.pid_out;       
         Can1Send_Shoot[2] = (int16_t)Shoot_Speed_PID [LEFT].pid_out;

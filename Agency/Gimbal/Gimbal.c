@@ -1,6 +1,6 @@
 #include "Gimbal.h"
 #include "Time.h"
-#include "usb_task.h"
+#include "USB_Task.h"
 
 eGimbal Gimbal;
 eGimbalPidMode GimbalPidMode;
@@ -256,8 +256,8 @@ void Gimbal_Pid(){
 			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],IMU.Angle_Pitch,ReceiveVisionData.data.Ref_Pitch);
 			PID_Calc(&Gimbal_Speed_pid_Pitch[AIM],IMU.Gyro_Pitch ,Gimbal_Place_pid_Pitch[AIM].Output + ReceiveVisionData.data.Ref_Vpitch);
 			}else{
-			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],Gimbal.Angle[Gyro].ContinuousYaw,Gimbal.Ref[Gyro].Yaw);
-			PID_Calc(&Gimbal_Speed_pid_Yaw[AIM],Gimbal.Speed[Gyro].Yaw,Gimbal_Place_pid_Yaw[AIM].Output);
+			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,Gimbal.Ref[Gyro].Yaw);
+			PID_Calc(&Gimbal_Speed_pid_Yaw[AIM],IMU.Gyro_Yaw,Gimbal_Place_pid_Yaw[AIM].Output);
 			
 			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],Gimbal.Angle[Mech].Pitch,Gimbal.Ref[Mech].Pitch);
 			PID_Calc(&Gimbal_Speed_pid_Pitch[AIM],Gimbal.Speed[Mech].Pitch,Gimbal_Place_pid_Pitch[AIM].Output);;
@@ -273,8 +273,8 @@ void Gimbal_Pid(){
 
 void Gimbal_Send(){
 	if(GimbalCtrl == gAim){
-		Can2Send_Gimbal[YAW]   = ((int16_t)((Gimbal_Speed_pid_Yaw[AIM].Output + ReceiveVisionData.data.Ref_aYaw)	* current_to_out));
 		Can2Send_Gimbal[PITCH] = ((int16_t)((Gimbal_Speed_pid_Pitch[AIM].Output + ReceiveVisionData.data.Ref_aPitch)* current_to_out));
+		Can2Send_Gimbal[YAW]   = ((int16_t)((Gimbal_Speed_pid_Yaw[AIM].Output + ReceiveVisionData.data.Ref_aYaw)	* current_to_out));
 	}else{
 		Can2Send_Gimbal[PITCH] = (int16_t)(Gimbal_Speed_pid_Pitch[MECH].Output * current_to_out);
 		Can2Send_Gimbal[YAW]   = (int16_t)(Gimbal_Speed_pid_Yaw[GYRO].Output * current_to_out);	
@@ -360,25 +360,19 @@ void Gimbal_SendDown(){
        
 }
 
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-  if (hcan->Instance == CAN2)
-  {
+void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  if (hcan->Instance == CAN2){
     uint16_t CAN2_ID = CAN_Receive_DataFrame(&hcan2, CAN2_buff);
-    switch (CAN2_ID)
-    {
+    switch (CAN2_ID){
         case 0x101: memcpy(&Referee_data_Rx, CAN2_buff, sizeof(Referee_data_Rx));
                     Feed_Dog(&Down_Dog);
 					break;
-
         case 0x205: GM6020_Receive( &Gimbal_Motor[PITCH], CAN2_buff); 
                     Feed_Dog(&Gimbal_Dog[PITCH]);
-                    break;
-        
+          break;
         case 0x206: GM6020_Receive( &Gimbal_Motor[YAW], CAN2_buff); 
                     Feed_Dog(&Gimbal_Dog[YAW]);
 					break;
-		
         default:    break;
     }
   }

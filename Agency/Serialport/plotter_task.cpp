@@ -2,8 +2,6 @@
 #include "plotter.h"
 #include "ins_task.h"
 
-
-#define Pi 3.14159265358979f
 at::Plotter plotter(&huart1);
 
 extern "C" void Plotter_Task(){

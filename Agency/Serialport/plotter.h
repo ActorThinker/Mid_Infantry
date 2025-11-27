@@ -1,5 +1,4 @@
-#ifndef __PLOTTER_H__
-#define __PLOTTER_H__
+#pragma once
 
 #include "usart.h"
 
@@ -7,7 +6,7 @@ namespace at
 {
 constexpr size_t PLOTTER_FLOAT_NUM = 12;
 
-struct __attribute__((packed)) PlotFrame
+struct __PACKED PlotFrame
 {
   uint8_t start[2] = {0xAA, 0xBB};
   uint8_t size;
@@ -54,5 +53,3 @@ private:
 };
 
 }  // namespace at
-
-#endif  // AT__PLOTTER_HPP

@@ -1,29 +1,33 @@
 #ifndef __SHOOT_H
 #define __SHOOT_H
+
 #include "Variate.h"
+#include "USB_Task.h"
 
 extern void Shoot_Stop();
-extern void Shoot_Rc_Ctrl();    //!< @brief ·¢Éä»ú¹¹Ò£¿ØÆ÷Ä£Ê½
-extern void Shoot_Key_Ctrl();   //!< @brief ·¢Éä»ú¹¹¼üÊóÄ£Ê½
-extern void Shoot_Drive();     //!< @brief ·¢Éä»ú¹¹µç»úÇý¶¯
+extern void Shoot_Rc_Ctrl();    //!< @brief å‘å°„æœºæž„é¥æŽ§å™¨æ¨¡å¼
+extern void Shoot_Key_Ctrl();   //!< @brief å‘å°„æœºæž„é”®é¼ æ¨¡å¼
+extern void Shoot_Drive();     //!< @brief å‘å°„æœºæž„ç”µæœºé©±åŠ¨
 extern void Shoot_Close();
-/* ¼ì²â·¢Éä»ú¹¹ */
+/* æ£€æµ‹å‘å°„æœºæž„ */
 extern void Detect_Shoot();
-/* ·¢²¼·¢Éä»ú¹¹Êý¾Ý */
+/* å‘å¸ƒå‘å°„æœºæž„ */
 extern void ShootPublish();
-/* ¸üÐÂ×´Ì¬Á¿ */
+/* æ›´æ–°çŠ¶æ€é‡Ì¬*/
 extern void ShootData_Update();
-/* ¾ö¶¨¿ØÖÆ·½Ê½ */
+/* å†³å®šæŽ§åˆ¶æ–¹å¼ */
 extern void ShootCtrl_Decide();
-/* ´¦ÀíÒì³£ */
+/* å¤„ç†å¼‚å¸¸ */
 extern void ShootHandleEception();
-/* ÉèÖÃÄ¿±êÁ¿ */
+/* è®¾ç½®ç›®æ ‡é‡ */
 extern void ShootRef_Set();
-/* Ç¹¿ÚÈÈÁ¿ÏÞÖÆ */
+/* æžªå£çƒ­é‡é™åˆ¶ */
 extern void ShootHeat_Limit();
-/* ¼ÆËã¿ØÖÆÁ¿ */
+/* è®¡ç®—æŽ§åˆ¶é‡ */
 extern void Shoot_Console();
-/* ·¢ËÍ¿ØÖÆÁ¿ */
+/* å‘é€æŽ§åˆ¶é‡ */
 extern void Shoot_Send();
-
+extern void Shoot_SendDown();
+/* è‡ªçž„ */
+extern void Aim_Shoot();
 #endif

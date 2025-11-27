@@ -1,6 +1,5 @@
 #include "Chassis.h"
 #include "arm_math.h"
-#include "usb_task.h"
 #include "rng.h"
 PID_TypeDef Chassis_Place_pid_Rotate;
 PID_TypeDef Chassis_Speed_pid_Rotate;
@@ -248,11 +247,7 @@ void Chassis_Offset(){
 		 }	
 
 #endif
-	}else{
-			forward_back_ref =  -100 * ROBOT_CMD_DATA.data.speed_vector.vx;
-		  left_right_ref   = -100 * ROBOT_CMD_DATA.data.speed_vector.vy;
 	}
-    
     if(CHASSIS.Action == ChassisCheck){
 			left_right_ref = 0;
 			Communication_Speed_Tx.Chassis_Speed.rotate_ref   = Key_ch[0] * 3500;

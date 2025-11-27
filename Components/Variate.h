@@ -16,6 +16,8 @@
 
 #include "stdbool.h"
 #include "Attribute_Typedef.h"
+#include "Function.h"
+
 #define CHASSIS_RUN 1
 #define GIMBAL_RUN  1
 #define SHOOT_RUN   1
@@ -83,9 +85,8 @@ enum{
 #define STD_Angle  0.36f	// 角度制1rpm/s
 #define STD_MAngle 8.192	// 机械角度制1rpm/s
 
-// 数据名称宏
 #define IMU_NAME "imu_data"
-#define ROBOT_CMD_DATA_NAME "ROBOT_CMD_DATA"
+
 
 /* 卡弹标志位 */
 extern int StuckFlag;

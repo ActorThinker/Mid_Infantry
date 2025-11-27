@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx,ARM_MATH_CM4,__TARGET_FPU_VFP</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bsp;../Components;../Components/Devices;../Components/Controller;../Components/Algorithm;../Components/Algorithm/Include;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../RM_Lib/Inc;../Init_Ctrl;../Agency/Gimbal;../Agency/Shoot;../Agency/WatchDog;../Agency/AIM;../Agency/Data_Deal;../Agency/Serialport;../Agency/Chassis;../Agency/Radar;..\Components\Algorithm\mahony</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Middlewares/Third_Party/FreeRTOS/Source/include;../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM4F;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bsp;../Components;../Components/Devices;../Components/Controller;../Components/Algorithm;../Components/Algorithm/Include;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc;../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2;../RM_Lib/Inc;../Init_Ctrl;../Agency/Gimbal;../Agency/Shoot;../Agency/WatchDog;../Agency/AIM;../Agency/Data_Deal;../Agency/Serialport;../Agency/Chassis;..\Agency\USB;..\Components\Algorithm\mahony</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -1795,6 +1795,11 @@
               <FileType>4</FileType>
               <FilePath>..\Components\Algorithm\RMLib.lib</FilePath>
             </File>
+            <File>
+              <FileName>Function.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Components\Function.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1854,21 +1859,6 @@
               <FileName>Gimbal_Task.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Agency\Gimbal\Gimbal_Task.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Aim</GroupName>
-          <Files>
-            <File>
-              <FileName>Aim.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Agency\AIM\Aim.c</FilePath>
-            </File>
-            <File>
-              <FileName>Aim.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Agency\AIM\Aim.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -1933,12 +1923,7 @@
             <File>
               <FileName>USB_Task.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Agency\Radar\USB_Task.c</FilePath>
-            </File>
-            <File>
-              <FileName>USB_Task.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Agency\Radar\USB_Task.h</FilePath>
+              <FilePath>..\Agency\USB\USB_Task.c</FilePath>
             </File>
           </Files>
         </Group>
