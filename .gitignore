@@ -1,84 +1,82 @@
+# ===============================
+# STM32 CubeMX + Keil Project
+# ===============================
 
-# Created by https://www.toptal.com/developers/gitignore/api/keil
-# Edit at https://www.toptal.com/developers/gitignore?templates=keil
-
-### Keil ###
-# something maybe need to add
-# *.bat  # generate batch file
-# output/project_name # uv project generate without file ext
-# *.SRC # generate source file
-# *.src
-
-# Prerequisites
-*.d
-*.dep
-# Object files
-*.o
-*.obj
-*.OBJ
-
-# Listing Files
-*.COD
-*.cod
-*.[Ii]
-*.LST
-*.lst
-*.MAP
-*.map
-*.[Mm]51
-*.[Mm]66
-*.SCR
-*.scr
-
-# LINK output
-*.ABS
-
-# Libraries
-*.lib
-*.LIB
-
-
-# uv output
-*.lnp
-*.build_log.htm
-*.HEX
-*.hex
-*.crf
-
-
-# Build Files
-*._IA
-*.__[Ii]
-*._[Ii][Ii]
-
-# project
-*.uvgui.*
-*.uvguix.*
-MDK-ARM/*/
-*.scvd
-*.uvoptx
-
-#CLion
-.idea
-cmake-build-*
-
-#VSCode
-.vscode
-
-#STM32CubeMX HAL
-Drivers
-Middlewares
-
-# Log Files
+# ---- CubeMX ----
+/.ioc-backup/
+/*.ioc.xml
+*.project
+*.mxproject
 *.log
-*.tem
-*.temp
-*.jscope
-html
-docs
-latex
+*.launch
+*.settings/
+*.mxresources
+Core/Inc/*.bak
+Core/Src/*.bak
 
-# 快捷方式
-*.lnk
+# ---- Keil MDK-ARM ----
+*.uvguix.*
+*.uvoptx
+*.uvguix
+*.uvopt
+*.uvprojx.Bak
+*.uvproj
+*.uvprojx.bak
+*.uvproj.bak
 
-# End of https://www.toptal.com/developers/gitignore/api/keil
+# uVision generated folders
+Listings/
+Objects/
+Output/
+DebugConfig/
+
+# Middleware generated temporary files
+Middlewares/Third_Party/*/Examples/
+Middlewares/Third_Party/*/docs/
+
+# ---- Build output ----
+*.axf
+*.elf
+*.hex
+*.bin
+*.d
+*.o
+*.map
+*.lst
+*.crf
+*.sct
+
+# ---- Debug ----
+*.dep
+*.log
+*.dbgconf
+*.icf
+*.out
+
+# ---- VSCode extra ----
+.vscode/
+*.code-workspace
+
+# ---- C/C++ Common ----
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# ---- Backup files ----
+*.bak
+*.tmp
+*~
+
+# ---- CMake (if used) ----
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+Makefile
+
+# ---- Python virtual environment (if tools used) ----
+venv/
+__pycache__/
+
+
