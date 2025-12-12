@@ -1,18 +1,43 @@
 #include "remote.h"
+#include "Variate.h"
+
+float Key_ch[4]   = {0};
+float Mouse_ch[3] = {0};
+InputMode_e RemoteMode;
 
 RC_Ctl_t RC_CtrlData = {.rc = {1024, 1024, 1024, 1024, 2, 2}};     //!<@brief remote control data
 
-__weak void RemoteControlProcess(Remote *rc) {
-    UNUSED(rc);
+void RemoteControlProcess(Remote *rc) {
+  RemoteMode=REMOTE_INPUT;
+	
+	Key_ch[0] =(float )(rc->ch0 - 1024)/660;
+	Key_ch[1] =(float )(rc->ch1 - 1024)/660;
+	Key_ch[2] =(float )(rc->ch2 - 1024)/660;
+	Key_ch[3] =(float )(rc->ch3 - 1024)/660;
+	
+	deadline_limit(Key_ch[0],0.1f);
+	deadline_limit(Key_ch[1],0.1f);
+	deadline_limit(Key_ch[2],0.1f);
+	deadline_limit(Key_ch[3],0.1f);
+}
+void MouseKeyControlProcess(Mouse *mouse, Key_t key, Key_t Lastkey) {
+	RemoteMode=KEY_MOUSE_INPUT;
+	
+	limit (mouse ->x,200,-200);
+	limit (mouse ->y,200,-200);
+	limit (mouse ->z,200,-200);
+	
+	Mouse_ch[0]=(float)(mouse ->x)/200;
+	Mouse_ch[1]=(float)(mouse ->y)/200;
+	Mouse_ch[2]=(float)(mouse ->z)/200;
+	
+	deadline_limit(Mouse_ch[0],0.01f);
+	deadline_limit(Mouse_ch[1],0.01f);
+	deadline_limit(Mouse_ch[2],0.01f);;
 }
 
-__weak void MouseKeyControlProcess(Mouse *mouse, Key_t key, Key_t Lastkey) {
-    UNUSED(mouse);
-    UNUSED(key);
-}
-
-__weak void STOPControlProcess(void) {
-    return;
+void STOPControlProcess(void) {
+	RemoteMode=STOP;
 }
 
 void RemoteClear() {

@@ -25,6 +25,7 @@ typedef struct
   uint32_t time_stamp;
   struct{
 		uint8_t self_color ; //0-blud  1-red
+		float bullet_speed;// m/s
     float yaw;    // rad
 		float pitch;  // rad
 		float roll;   // rad

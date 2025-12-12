@@ -22,20 +22,20 @@ void GimbalInit(){
 	RecodeGimbal =   0;
 	Time.GimbalInit = 0;
 	
-	PID_init(&Gimbal_Speed_pid_Pitch[INIT],2.0f*Pi,2.0f*Pi,0,   0,0,0,0,		0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Place_pid_Pitch[INIT],			3,3,0,  				0,0,0,0,		0.001,0,0,0,0,Integral_Limit);
-	PID_init(&Gimbal_Place_pid_Yaw[INIT],2.0f*Pi,2.0f*Pi,0,     0,0,0,0,		0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Yaw[INIT],				3,3,0,  	    	0,0,0,0,		0.001,0,0,0,0,Integral_Limit);
+	PID_init(&Gimbal_Place_pid_Pitch[INIT],2.0f*Pi,2.0f*Pi,0,   0,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Pitch[INIT],			3,3,0,  				0,0,0,0,0.001f);
+	PID_init(&Gimbal_Place_pid_Yaw[INIT],2.0f*Pi,2.0f*Pi,0,     0,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Yaw[INIT],				3,3,0,  	      0,0,0,0,0.001f);
 
-	PID_init(&Gimbal_Speed_pid_Pitch[MECH],6.0f*Pi,6.0f*Pi,0, 0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit&&ChangingIntegralRate);	
-	PID_init(&Gimbal_Place_pid_Pitch[MECH],			3,3,0,   		  0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit&&ChangingIntegralRate);
-	PID_init(&Gimbal_Place_pid_Yaw[GYRO],2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Yaw[GYRO],			  3,3,0,  			-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);
+	PID_init(&Gimbal_Place_pid_Pitch[MECH],6.0f*Pi,6.0f*Pi,0, 0.5f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Pitch[MECH],			3,3,0,   		  0.5f,0,0,0,0.001f);
+	PID_init(&Gimbal_Place_pid_Yaw[GYRO],2.0f*Pi,2.0f*Pi,0,   1.0f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Yaw[GYRO],			  3,3,0,  		 -1.5f,0,0,0,0.001f);
 
-	PID_init(&Gimbal_Place_pid_Pitch[AIM],6.0f*Pi,6.0f*Pi,0, 	0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Pitch[AIM],			3,1.5f,0,  		0.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,     1 ,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
-	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,   	-1.5,0,0,0,  0.001,0,0,0,0,Integral_Limit);	
+	PID_init(&Gimbal_Speed_pid_Pitch[AIM],6.0f*Pi,6.0f*Pi,0, 	0.5f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Place_pid_Pitch[AIM],			3,1.5f,0,  		0.5f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,   2.0f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,    -2.0f,0,0,0,0.001f);	
 }
 
 void GimbalCtrl_Decide(){
@@ -45,11 +45,8 @@ void GimbalCtrl_Decide(){
 		Gimbal_Stop();
 	}else Gimbal_Stop();
 }
-
 float PitchOffset;
-
 void GimbalRef_Update(){
-
 	if(RecodeGimbal == 0){
 		Gimbal.Ref[Gyro].Yaw 	=	IMU.Angle_Yawcontinuous;
 		Gimbal.Ref[Gyro].Pitch 	=	IMU.Angle_Pitch;
@@ -58,6 +55,7 @@ void GimbalRef_Update(){
 		PitchOffset = 0;
 		if(Gimbal.Mode == gAim){
 		Gimbal.Ref[Mech].Pitch = Gimbal.Angle[Mech].Pitch;
+		Gimbal.Angle[Mech].Pitch = Gimbal_Motor[PITCH].Angle_DEG;
 	}else{
 		Gimbal.Ref[Gyro].Pitch = IMU.Angle_Pitch;	 
 	 }
@@ -93,9 +91,9 @@ switch(GimbalCtrl){
 		Gimbal.Ref[Gyro].Yaw  	-= 	Gimbal.increase[YAW];	
 	
 		limit(Gimbal.Ref[Mech].Pitch,P_ADD_limit,P_LOSE_limit);		 
-	break;
+		break;
 	case gAim:
-		if(Gimbal.Mode == Gyro && ReceiveVisionData.data.dis != -1){
+		if(Gimbal.Mode == Gyro && ReceiveVisionData.data.dis > 0.1f){
 			PitchOffset -= Mouse_ch[1] * 0.01;
 			Gimbal.Ref[Gyro].Yaw   = ReceiveVisionData.data.Ref_Yaw;
 			Gimbal.Ref[Gyro].Pitch = ReceiveVisionData.data.Ref_Pitch;   		
@@ -115,39 +113,21 @@ switch(GimbalCtrl){
 		Gimbal.Ref[Mech].Pitch -= Gimbal.increase[PITCH];
 		}
 		Gimbal.LastCtrl = gAim;
-	break;
-	case gFllow:
-		Gimbal.increase[YAW]   = 0;
-		Gimbal.increase[PITCH] = Key_ch[3] * 0.1f;
-		limit(Gimbal.Ref[Mech].Pitch,P_ADD_limit,P_LOSE_limit);		 
-	break;
-	
-	case gTest:
-		Gimbal.increase[YAW]   	= 0;
-		Gimbal.increase[PITCH] 	= 0;
-		Gimbal.Ref[Gyro].Yaw  	+= 0.1;
-		if(Gimbal.Ref[Gyro].Yaw >= 51)	Gimbal.Ref[Gyro].Yaw = 0;
-	break;
-
+		break;
 	default :
 			Gimbal.Ref[Gyro].Yaw   = 0;
 			Gimbal.Ref[Gyro].Pitch = 0 + PitchOffset;   		
-	
-	break;
+		break;
   }
 }
-
 void GimbalReal_Update(){
-			Gimbal.Angle[Gyro].Pitch           	= IMU.Angle_Pitch;
-			Gimbal.Angle[Gyro].ContinuousYaw	  = IMU.Angle_Yawcontinuous;
-			Gimbal.Speed[Gyro].Pitch            = IMU.Gyro_Pitch;
-			Gimbal.Speed[Gyro].Yaw              = IMU.Gyro_Yaw;
+	Gimbal.Angle[Gyro].Pitch           	= IMU.Angle_Pitch;
+	Gimbal.Angle[Gyro].ContinuousYaw	  = IMU.Angle_Yawcontinuous;
+	Gimbal.Speed[Gyro].Pitch            = IMU.Gyro_Pitch;
+	Gimbal.Speed[Gyro].Yaw              = IMU.Gyro_Yaw;
 
-			Gimbal.Angle[Mech].ContinuousYaw    = Gimbal_Motor[YAW].Angle;
-			Gimbal.Angle[Mech].Yaw              = Gimbal_Motor[YAW].MchanicalAngle;
-			Gimbal.Speed[Mech].Yaw              = Gimbal_Motor[YAW].Speed;
-			Gimbal.Angle[Mech].Pitch            = Gimbal_Motor[PITCH].Angle_DEG;
-			Gimbal.Speed[Mech].Pitch            = IMU.Gyro_Pitch;
+	Gimbal.Angle[Mech].Pitch            = Gimbal_Motor[PITCH].Angle_DEG;
+	Gimbal.Speed[Mech].Pitch            = IMU.Gyro_Pitch;
 }
 
 void Gimbal_Key_Ctrl(){
@@ -225,15 +205,12 @@ void Gimbal_RC_Ctrl(){
 		break;
     }	
 }	
-
 void Gimbal_Stop(){
 	Gimbal.Ref[Gyro].Yaw   = Gimbal.Angle[Gyro].ContinuousYaw;
 	Gimbal.Ref[Gyro].Pitch = Gimbal.Angle[Gyro].Pitch;
-	Gimbal.Ref[Mech].Yaw   = Gimbal.Angle[Mech].ContinuousYaw;
 	Gimbal.Ref[Mech].Pitch = Gimbal.Angle[Mech].Pitch;
 	Can2Send_Gimbal[YAW]   = 0;	
 	Can2Send_Gimbal[PITCH] = 0;
-
 	MotorSend(&hcan2, 0x1FE, Can2Send_Gimbal);
 }
 void Detect_Gimbal(){
@@ -246,11 +223,10 @@ void Detect_Gimbal(){
 		Gimbal_Stop();
 	}
 }
-
 void Gimbal_Pid(){
 	if (GimbalCtrl == gAim){
-		if(ReceiveVisionData.data.dis != -1){
-			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yaw,ReceiveVisionData.data.Ref_Yaw);
+		if(ReceiveVisionData.data.dis > 0.1f){
+			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,IMU.VisionAngle);
 			PID_Calc(&Gimbal_Speed_pid_Yaw[AIM],IMU.Gyro_Yaw ,Gimbal_Place_pid_Yaw[AIM].Output + ReceiveVisionData.data.Ref_Vyaw);
 
 			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],IMU.Angle_Pitch,ReceiveVisionData.data.Ref_Pitch);
@@ -270,7 +246,6 @@ void Gimbal_Pid(){
 			PID_Calc(&Gimbal_Speed_pid_Pitch[MECH],Gimbal.Speed[Mech].Pitch,Gimbal_Place_pid_Pitch[MECH].Output); 						
     }
 }
-
 void Gimbal_Send(){
 	if(GimbalCtrl == gAim){
 		Can2Send_Gimbal[PITCH] = ((int16_t)((Gimbal_Speed_pid_Pitch[AIM].Output + ReceiveVisionData.data.Ref_aPitch)* current_to_out));
@@ -287,68 +262,59 @@ void Gimbal_Send(){
 }
 
 void MedianInit(){
-		int16_t Can2Send[4] = {0};
-    static int16_t Expect_PitchInit = 0.0f;
-    static int16_t Expect_YawInit   = 0.0f;
-    static float   Expect_YawRamp   = 0.0f;
-    static float   Expect_PitchRamp = 0.0f;
+	int16_t Can2Send[4] = {0};
+	static int16_t Expect_PitchInit = 0.0f;
+	static int16_t Expect_YawInit   = 0.0f;
+	static float   Expect_YawRamp   = 0.0f;
+	static float   Expect_PitchRamp = 0.0f;
 
-    uint16_t CurrentYaw   = Gimbal_Motor[YAW].MchanicalAngle;  
-    uint16_t CurrentPitch = Gimbal_Motor[PITCH].MchanicalAngle;
+	uint16_t CurrentYaw   = Gimbal_Motor[YAW].Angle_DEG;  
+	uint16_t CurrentPitch = Gimbal_Motor[PITCH].Angle_DEG;
 
-    if (Time.GimbalInit < 100){
+	if (Time.GimbalInit < 100){
 #if   Yaw_Mid_Right < Yaw_Mid_Left
-        if ((CurrentYaw <= Yaw_Mid_Left) && (CurrentYaw >= Yaw_Mid_Right))
+			if ((CurrentYaw <= Yaw_Mid_Left) && (CurrentYaw >= Yaw_Mid_Right))
 #elif Yaw_Mid_Right > Yaw_Mid_Left
-        if ((CurrentYaw <= Yaw_Mid_Left) || (CurrentYaw >= Yaw_Mid_Right))
+			if ((CurrentYaw <= Yaw_Mid_Left) || (CurrentYaw >= Yaw_Mid_Right))
 #endif
-            MidMode = FRONT;
-        else
-            MidMode = BACK;
-    } else {
-        if (MidMode == FRONT) 	Expect_YawInit = QuickCentering(CurrentYaw, Yaw_Mid_Front);
-						else	Expect_YawInit = QuickCentering(CurrentYaw, Yaw_Mid_Back);
+				MidMode = FRONT;	else	MidMode = BACK;
+	}else{
+		if (MidMode == FRONT) 	Expect_YawInit = QuickCentering(Gimbal_Motor[YAW].Angle_DEG,(float)Yaw_Mid_Front * 0.0439453125f);
+				else	Expect_YawInit = QuickCentering(Gimbal_Motor[YAW].Angle_DEG, (float)Yaw_Mid_Back * 0.0439453125f);
 
-        Expect_YawRamp = RAMP_float((float)Expect_YawInit, Expect_YawRamp, 200); 
-        PID_Calc(&Gimbal_Place_pid_Yaw[INIT], CurrentYaw, Expect_YawRamp);
-        PID_Calc(&Gimbal_Speed_pid_Yaw[INIT], Gimbal_Motor[YAW].Speed, Gimbal_Place_pid_Yaw[INIT].Output);
+		Expect_YawRamp = RAMP_float((float)Expect_YawInit, Expect_PitchInit,100); 
+		PID_Calc(&Gimbal_Place_pid_Yaw[INIT], Gimbal_Motor[YAW].Angle_DEG, Expect_YawRamp);
+		PID_Calc(&Gimbal_Speed_pid_Yaw[INIT], Gimbal_Motor[YAW].Speed, Gimbal_Place_pid_Yaw[INIT].Output);
 
-        Expect_PitchInit = QuickCentering(CurrentPitch, Pitch_Mid);
-        Expect_PitchRamp = RAMP_float((float)Expect_PitchInit, Expect_PitchRamp, 50); 
-        PID_Calc(&Gimbal_Place_pid_Pitch[INIT], CurrentPitch, Expect_PitchRamp);
-        PID_Calc(&Gimbal_Speed_pid_Pitch[INIT], Gimbal.Speed[Mech].Pitch, Gimbal_Place_pid_Pitch[INIT].Output);
+		Expect_PitchInit = QuickCentering(Gimbal_Motor[PITCH].Angle_DEG,(float)Pitch_Mid * 0.0439453125f);
+		Expect_PitchRamp = RAMP_float((float)Expect_PitchInit, Expect_PitchInit, 50); 
+		PID_Calc(&Gimbal_Place_pid_Pitch[INIT], Gimbal_Motor[PITCH].Angle_DEG, Expect_PitchRamp);
+		PID_Calc(&Gimbal_Speed_pid_Pitch[INIT], Gimbal_Motor[PITCH].Speed,Gimbal_Place_pid_Pitch[INIT].Output);
 
-        Can2Send[YAW]   = (int16_t)(Gimbal_Speed_pid_Yaw[INIT].Output  * current_to_out);
-        Can2Send[PITCH] = (int16_t)(Gimbal_Speed_pid_Pitch[INIT].Output* current_to_out);
-		
+		Can2Send[YAW]   = (int16_t)(Gimbal_Speed_pid_Yaw[INIT].Output  * current_to_out);
+		Can2Send[PITCH] = (int16_t)(Gimbal_Speed_pid_Pitch[INIT].Output* current_to_out);
 		limit(Can2Send[GIMBAL_SUM],GM6020_Limit,-GM6020_Limit);
-
 #if GIMBAL_RUN
         MotorSend(&hcan2, 0x1FE, Can2Send);
 #endif
     }         
+	if(Time.GimbalInit >= 1000){
+		Time.GimbalInit = 0;
+		GimbalInitFlag  = 0;
 
-    if(Time.GimbalInit >= 1000){
-        Time.GimbalInit = 0;
-        GimbalInitFlag  = 0;
+		Gimbal.Ref[Mech].Pitch           = Gimbal_Motor[PITCH].Angle_DEG;	
+		Gimbal.Angle[Mech].Pitch         = Gimbal_Motor[PITCH].Angle_DEG;
+		Gimbal.YawInit                   = Expect_YawInit;
+		Gimbal.MidMode                   = MidMode;
 
-        // 初始化参考
-        Gimbal.Ref[Mech].Pitch           = Gimbal_Motor[PITCH].Angle_DEG;	
-        Gimbal.Ref[Mech].Yaw             = Expect_YawInit;
-        Gimbal.Angle[Mech].ContinuousYaw = Gimbal_Motor[YAW].Angle; // 连续角度
-        Gimbal.Angle[Mech].Pitch         = Gimbal_Motor[PITCH].Angle_DEG;
-        Gimbal.YawInit                   = Expect_YawInit;
-        Gimbal.MidMode                   = MidMode;
+		Gimbal.Angle[Gyro].ContinuousYaw = IMU.Angle_Yawcontinuous;
+		Gimbal.Angle[Gyro].Pitch         = IMU.Angle_Pitch;
+		Gimbal.Ref[Gyro].Pitch           = IMU.Angle_Pitch;
+		Gimbal.Ref[Gyro].Yaw             = IMU.Angle_Yawcontinuous;		   
+		Gimbal.increase[PITCH] = 0;
+		Gimbal.increase[YAW]   = 0;
 
-        // IMU 模式参考
-        Gimbal.Angle[Gyro].ContinuousYaw = IMU.Angle_Yawcontinuous;
-        Gimbal.Angle[Gyro].Pitch         = IMU.Angle_Pitch;
-        Gimbal.Ref[Gyro].Pitch           = IMU.Angle_Pitch;
-        Gimbal.Ref[Gyro].Yaw             = IMU.Angle_Yawcontinuous;		   
-        Gimbal.increase[PITCH] = 0;
-        Gimbal.increase[YAW]   = 0;
-
-        SystemState = SYSTEM_RUNNING;
+		SystemState = SYSTEM_RUNNING;
     }
 }
 
@@ -359,7 +325,6 @@ void Gimbal_SendDown(){
 		else Gimbal_action.Gimbal_status.Yaw 	= 	Gimbal_offline; 
        
 }
-
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (hcan->Instance == CAN2){
     uint16_t CAN2_ID = CAN_Receive_DataFrame(&hcan2, CAN2_buff);

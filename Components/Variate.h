@@ -11,40 +11,37 @@
 #include "CANDrive.h"
 #include "WatchDog.h"
 #include "PID.h"
-#include "IMU.h"
 #include "Data_Exchange.h"
 
 #include "stdbool.h"
 #include "Attribute_Typedef.h"
 #include "Function.h"
+#include "ins_task.h"
 
 #define CHASSIS_RUN 1
 #define GIMBAL_RUN  1
 #define SHOOT_RUN   1
-
 #define current_to_out 16384.0f / 3.0f
-
-#define RobotID 1 	//0 1ç™½0é»‘
-#define Pimu_ADD_limit 10
-#define Pimu_LOSE_limit 34
-
-#define SHOOT_SPEED 6000
+#define RobotID 1 	
+/* speed*2*r*60 */
+#define SHOOT_SPEED 7000
 #define PLUCK_SPEED 8500
 #define PLUCK_MOTOR_ONE 1360
 
 #define Pi 3.14159265358979f
-#if RobotID == 0
+#if RobotID == 1
+/* æœºæ¢°è§’åº¦*0.0439453125f */
+#define Yaw_Mid_Front 5200
+#define Pitch_Mid 1285
+#define P_ADD_limit 80
+#define P_LOSE_limit 35
+#elif RobotID == 0
 #define Yaw_Mid_Front 1179
 #define Pitch_Mid 4333
 #define P_ADD_limit 210
 #define P_LOSE_limit 167
-#elif RobotID == 1
-#define Yaw_Mid_Front 4670
-#define Pitch_Mid 1285
-#define P_ADD_limit 80
-#define P_LOSE_limit 30
-
 #endif
+
 
 #define limit(IN, MAX, MIN) \
     if (IN < MIN)           \
@@ -213,11 +210,6 @@ typedef struct{
 /* ÉÏÏÂ°åÍ¨ÐÅ·¢ËÍ */
 extern Gimbal_data_t Gimbal_data;
 extern Gimbal_action_t Gimbal_action;
-
-/** @briefn */
-/* Ò£¿ØÆ÷ */
-extern float Key_ch[4], Mouse_ch[3];
-extern InputMode_e RemoteMode;
 /* ÈÎÎñ¾ä±ú */
 extern TaskHandle_t  Chassis_Task_handle, Gimbal_Task_handle, Shoot_Task_handle, Ins_Task_handle,Music_Task_handle,usb_task_handle;
 /* ¿´ÃÅ¹· */

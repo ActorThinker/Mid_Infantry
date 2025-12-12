@@ -87,14 +87,6 @@ void PID_Init(
 
     pid->Output = 0;
 }
-
-/**
- * @brief          PID计算
- * @param[in]      PID结构体
- * @param[in]      测量值
- * @param[in]      期望值
- * @retval         返回空
- */
 float PID_Calculate(PID_t *pid, float measure, float ref)
 {
     if (pid->Improve & ErrorHandle)

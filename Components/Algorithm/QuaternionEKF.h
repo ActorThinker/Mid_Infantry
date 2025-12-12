@@ -14,18 +14,31 @@
 typedef struct
 {
     uint8_t Initialized;
-    KalmanFilter_t IMU_QuaternionEKF;
-    uint8_t ConvergeFlag;
     uint8_t StableFlag;
     uint64_t ErrorCount;
     uint64_t UpdateCount;
+    float Gyro[3];
+    float Accel[3];
+	
+    KalmanFilter_t IMU_QuaternionEKF;//卡尔曼滤波结构体
+    uint8_t ConvergeFlag;
 
     float q[4];        // 四元数估计值
     float GyroBias[3]; // 陀螺仪零偏估计值
 
-    float Gyro[3];
-    float Accel[3];
-
+    float Roll;
+    float Pitch;
+    float Yaw;
+	
+    float Q1; // 四元数更新过程噪声
+    float Q2; // 陀螺仪零偏过程噪声
+    float R;  // 加速度计量测噪声	
+	
+    float dt; // 姿态更新周期
+    float ChiSquare_Data[1];      // 卡方检验检测函数
+    float ChiSquareTestThreshold; // 卡方检验阈值
+    float lambda;                 // 渐消因子	
+		
     float OrientationCosine[3];
 
     float accLPFcoef;
@@ -33,24 +46,10 @@ typedef struct
     float accl_norm;
     float AdaptiveGainScale;
 
-    float Roll;
-    float Pitch;
-    float Yaw;
-
     float YawTotalAngle;
-
-    float Q1; // 四元数更新过程噪声
-    float Q2; // 陀螺仪零偏过程噪声
-    float R;  // 加速度计量测噪声
-
-    float dt; // 姿态更新周期
+		float VisionAngle;
     mat ChiSquare;
-    float ChiSquare_Data[1];      // 卡方检验检测函数
-    float ChiSquareTestThreshold; // 卡方检验阈值
-    float lambda;                 // 渐消因子
-
     int16_t YawRoundCount;
-
     float YawAngleLast;
 } QEKF_INS_t;
 

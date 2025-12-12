@@ -39,7 +39,6 @@ else
 
 osStatus_t IMU_IfDataError( void )
 {
-
     if(fabs(IMU.Angle_Pitch)>180||fabs (IMU.Angle_Roll)>180||fabs (IMU.Angle_Yaw )>180
         ||(IMU.Angle_Pitch ==0&&IMU.Angle_Roll==0&&IMU.Angle_Yaw))
         return osError;

@@ -26,8 +26,8 @@ Communication_Speed_t Communication_Speed_Tx;
 /* 底盘初始化 */
 void ChassisInit(){
 	   Mid_Front = Yaw_Mid_Front;
-		 PID_init(&Chassis_Place_pid_Rotate,8000,5,0, -2.5,0,0,0,0.001,0,0,0,0,Integral_Limit);
-		 PID_init(&Chassis_Speed_pid_Rotate,8000,5,0, 3,0,0,0,0.001,0,0,0,0,Integral_Limit);
+		 PID_init(&Chassis_Place_pid_Rotate,8000,5,0, -2.5,0,0,0,0.001);
+		 PID_init(&Chassis_Speed_pid_Rotate,8000,5,0, 3,0,0,0,0.001);
      CHASSIS.Action = ChassisNormal;
 }
 /* 决定底盘控制模式 */

@@ -236,19 +236,16 @@ void Shoot_Console(){
 void Aim_Shoot(){
 	Aim_Data.AimShoot = AimReady;
 	if(GimbalCtrl == gAim ){
-		 if(ReceiveVisionData.data.dis != -1	&&	ReceiveVisionData.data.FireFlag == 1)
-					Aim_Data.AimShoot = AimFire;
+		if(ReceiveVisionData.data.dis > 0.1f	&&	ReceiveVisionData.data.FireFlag == 1)
+			Aim_Data.AimShoot = AimFire;
 	}
 }
 void Shoot_Send(){
-        Can1Send_Shoot[0] = (int16_t)Pluck_Speed_PID.pid_out;       
-        Can1Send_Shoot[2] = (int16_t)Shoot_Speed_PID [LEFT].pid_out;
-        Can1Send_Shoot[1] = (int16_t)Shoot_Speed_PID [RIGHT].pid_out; 
+	Can1Send_Shoot[0] = (int16_t)Pluck_Speed_PID.pid_out;       
+	Can1Send_Shoot[2] = (int16_t)Shoot_Speed_PID[LEFT].pid_out;
+	Can1Send_Shoot[1] = (int16_t)Shoot_Speed_PID[RIGHT].pid_out; 
 #if SHOOT_RUN
-	        if(SHOOT.Action != SHOOT_STOP){
-            MotorSend(&hcan1, 0X200, Can1Send_Shoot);					
-}
-
+	if(SHOOT.Action != SHOOT_STOP)	MotorSend(&hcan1, 0X200, Can1Send_Shoot);
 #endif
 }
 void Detect_Shoot(){
@@ -258,7 +255,6 @@ void Detect_Shoot(){
     if(DeviceState.Pluck_State != Device_Online || DeviceState.Shoot_State[LEFT] != Device_Online || DeviceState.Shoot_State[RIGHT] != Device_Online)
          SHOOT.Action = SHOOT_STOP;
     if(SHOOT.Action != SHOOT_STOP){
-
 				 if(SHOOT.Action == SHOOT_RUNNING){
          if(ABS( Pluck_Motor.Speed ) <= 15)
              Stuck_time++;
@@ -272,7 +268,6 @@ void Detect_Shoot(){
          SHOOT.Action = SHOOT_RUNNING;
 		 }
 	}
-
 }
         float Recover,Remain,Consumption,shoot_speed,K = 2;
 	      uint16_t ShootTime,shoot_time;
@@ -309,9 +304,7 @@ void ShootHeat_Limit(){
 								if(shoot_time < ShootTime){
 									shoot_time++;
 								}
-
-								//Î´Éä»÷
-
+							//Î´Éä»÷
 								if(SHOOT.Action != SHOOT_RUNNING){
 									shoot_time = 0;
 

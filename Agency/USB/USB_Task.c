@@ -37,7 +37,7 @@ static void UsbReceiveData(void) {
 
 static void UsbSendImuData(void){
 	SEND_DATA_IMU.time_stamp = HAL_GetTick();//获取当前时间戳
-
+	SEND_DATA_IMU.data.bullet_speed = SHOOT_SPEED * 0.10472f * 0.03;//m/s 733.04是rpm转化为线速度 v=wr;
 	SEND_DATA_IMU.data.pitch = 	IMU.Angle_Pitch *Pi/180.0f;//rad
 	SEND_DATA_IMU.data.yaw 	 = 	IMU.Angle_Yaw 	*Pi/180.0f;
 	SEND_DATA_IMU.data.roll  =	IMU.Angle_Roll 	*Pi/180.0f;

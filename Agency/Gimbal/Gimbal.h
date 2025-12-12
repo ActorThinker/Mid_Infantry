@@ -38,7 +38,7 @@ typedef struct
 
 typedef struct{
 enum {
-    Gyro = 0,
+  Gyro = 0,
 	Mech = 1,
 	ModeSum = 2
 }Mode;

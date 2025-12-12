@@ -22,3 +22,8 @@ RoboMaster Infantry Gimbal Based On Stm32F407
 - [x] 调整开发环境 由keil转向vscode+cmake开发
 - [x] 调整陀螺仪解算 解决自瞄情况下摩擦轮转动带来的高频震动引发的roll扰动
 - [ ] 进行cmake开发代码的编写
+
+
+
+航空线4路 云台供电线2 pc供电2  通信2 yaw 2    波胆盘2发射2
+
