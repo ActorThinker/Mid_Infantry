@@ -25,7 +25,7 @@ WatchDog_TypeDef IMU_Dog;
 
 uint32_t INS_DWT_Count = 0;
 static float dt = 0, t = 0;
-float RefTemp = 45.0;
+float RefTemp = 50.0;
 
 void INS_Init(void){
 	float init_quaternion[4] = {1,0,0,0};

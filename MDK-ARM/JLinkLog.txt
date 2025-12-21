@@ -1,0 +1,90 @@
+T87D4 000:267.001   SEGGER J-Link V6.86 Log File
+T87D4 000:267.083   DLL Compiled: Sep 24 2020 17:31:31
+T87D4 000:267.087   Logging started @ 2025-12-20 10:25
+T87D4 000:267.090 - 267.091ms
+T87D4 000:267.096 JLINK_SetWarnOutHandler(...)
+T87D4 000:267.100 - 0.005ms
+T87D4 000:267.104 JLINK_OpenEx(...)
+T87D4 000:269.187   Firmware: J-Link V9 compiled May  7 2021 16:26:12
+T87D4 000:269.321   Decompressing FW timestamp took 104 us
+T87D4 000:275.883   Hardware: V9.20
+T87D4 000:275.900   S/N: 59800890
+T87D4 000:275.905   OEM: SEGGER
+T87D4 000:275.910   Feature(s): RDI, GDB, FlashDL, FlashBP, JFlash
+T87D4 000:277.376   TELNET listener socket opened on port 19021
+T87D4 000:277.448   WEBSRV Starting webserver
+T87D4 000:277.541   WEBSRV Webserver running on local port 19080
+T87D4 000:277.547 - 10.444ms returns "O.K."
+T87D4 000:277.555 JLINK_GetEmuCaps()
+T87D4 000:277.559 - 0.005ms returns 0xB9FF7BBF
+T87D4 000:277.565 JLINK_TIF_GetAvailable(...)
+T87D4 000:277.765 - 0.209ms
+T87D4 000:277.782 JLINK_SetErrorOutHandler(...)
+T87D4 000:277.786 - 0.005ms
+T87D4 000:277.798 JLINK_ExecCommand("ProjectFile = "E:\Code\RM2026\CurrrentSmall\MDK-ARM\JLinkSettings.ini"", ...). 
+T87D4 000:283.329 - 5.540ms returns 0x00
+T87D4 000:283.354 JLINK_ExecCommand("Device = STM32F407IGHx", ...). 
+T87D4 000:283.785   Device "STM32F407IG" selected.
+T87D4 000:283.970 - 0.614ms returns 0x00
+T87D4 000:284.013 JLINK_GetHardwareVersion()
+T87D4 000:284.019 - 0.007ms returns 92000
+T87D4 000:284.026 JLINK_GetDLLVersion()
+T87D4 000:284.029 - 0.004ms returns 68600
+T87D4 000:284.033 JLINK_GetOEMString(...)
+T87D4 000:284.037 JLINK_GetFirmwareString(...)
+T87D4 000:284.041 - 0.008ms
+T87D4 000:284.059 JLINK_GetDLLVersion()
+T87D4 000:284.069 - 0.013ms returns 68600
+T87D4 000:284.075 JLINK_GetCompileDateTime()
+T87D4 000:284.078 - 0.004ms
+T87D4 000:284.083 JLINK_GetFirmwareString(...)
+T87D4 000:284.086 - 0.004ms
+T87D4 000:284.091 JLINK_GetHardwareVersion()
+T87D4 000:284.094 - 0.004ms returns 92000
+T87D4 000:284.098 JLINK_GetSN()
+T87D4 000:284.102 - 0.004ms returns 59800890
+T87D4 000:284.106 JLINK_GetOEMString(...)
+T87D4 000:284.112 JLINK_TIF_Select(JLINKARM_TIF_SWD)
+T87D4 000:284.871 - 0.766ms returns 0x00
+T87D4 000:284.887 JLINK_HasError()
+T87D4 000:284.896 JLINK_SetSpeed(10000)
+T87D4 000:285.107 - 0.218ms
+T87D4 000:285.316 JLINK_HasError()
+T87D4 000:285.324 JLINK_SetResetType(JLINKARM_RESET_TYPE_NORMAL)
+T87D4 000:285.327 - 0.005ms returns JLINKARM_RESET_TYPE_NORMAL
+T87D4 000:285.332 JLINK_Reset()
+T87D4 001:125.120   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 001:282.003   
+  ***** Error: 
+T87D4 001:282.094   STM32: Connecting to CPU via connect under reset failed.
+T87D4 001:515.498   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 001:674.037   
+  ***** Error: 
+T87D4 001:674.072   STM32: Connecting to CPU via connect under reset failed.
+T87D4 001:726.533 - 1441.236ms
+T87D4 001:726.607 JLINK_GetId()
+T87D4 001:833.392   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 001:989.989   
+  ***** Error: 
+T87D4 001:990.035   STM32: Connecting to CPU via connect under reset failed.
+T87D4 002:220.553   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 002:377.821   
+  ***** Error: 
+T87D4 002:377.843   STM32: Connecting to CPU via connect under reset failed.
+T87D4 002:428.183 - 701.632ms returns 0x00000000
+T87D4 002:428.303 JLINK_GetId()
+T87D4 002:534.768   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 002:692.131   
+  ***** Error: 
+T87D4 002:692.156   STM32: Connecting to CPU via connect under reset failed.
+T87D4 002:922.119   STM32 (connect): Can not attach to CPU. Trying connect under reset.
+T87D4 003:081.055   
+  ***** Error: 
+T87D4 003:081.137   STM32: Connecting to CPU via connect under reset failed.
+T87D4 003:132.104 - 703.818ms returns 0x00000000
+T87D4 003:139.284 JLINK_GetFirmwareString(...)
+T87D4 003:139.297 - 0.015ms
+T87D4 006:184.693 JLINK_Close()
+T87D4 006:192.383 - 7.702ms
+T87D4 006:192.445   
+T87D4 006:192.450   Closed
