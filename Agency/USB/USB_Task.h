@@ -52,7 +52,7 @@ typedef struct{
   uint8_t eof;//1
 } __PACKED ReceiveVisionData_t;
 extern ReceiveVisionData_t ReceiveVisionData;
-
+extern ReceiveVisionData_t last_ReceiveVisionData;
 extern void usb_task();
 
 #endif /* USB_TASK_H */

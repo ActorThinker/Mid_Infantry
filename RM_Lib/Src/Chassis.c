@@ -3,10 +3,10 @@
 #include "rng.h"
 PID_TypeDef Chassis_Place_pid_Rotate;
 PID_TypeDef Chassis_Speed_pid_Rotate;
-FeedForward_Typedef Chassis_FF = {.K1 = 1000.00, .OutMax = RM3508_LIMIT};        //Ç°À¡
+FeedForward_Typedef Chassis_FF = {.K1 = 1000.00, .OutMax = RM3508_LIMIT};        //å‰é¦ˆ
 uint16_t Mid_Left,Mid_Right,Mid_Back,Mid_Front;
 
-uint8_t RecodeAngle = 0; //¼ÇÂ¼ÍÓÂİÒÇ½Ç¶È
+uint8_t RecodeAngle = 0;
 uint16_t Angle_rotate_ref;
 static	Gimbal_board_send_t send_data;
 struct{
@@ -16,21 +16,20 @@ ChassisFllow = 1,
 ChassisNormal = 2,
 ChassisGyroscope = 3,
 ChassisRadar = 4,
-ChassisCheck = 5//¼ìÂ¼Õı·´×ª
+ChassisCheck = 5//æ£€å½•æ­£åè½¬
 }Action;
 int16_t MidAngle;
 }CHASSIS;
-
-/* ÉÏ°å·¢¸øÏÂ°å (µ×ÅÌËÙ¶È) */
+//ä¸Šæ¿å‘é€ç»™ä¸‹æ¿
 Communication_Speed_t Communication_Speed_Tx;
-/* µ×ÅÌ³õÊ¼»¯ */
+/* åº•ç›˜åˆå§‹åŒ– */
 void ChassisInit(){
 	   Mid_Front = Yaw_Mid_Front;
 		 PID_init(&Chassis_Place_pid_Rotate,8000,5,0, -2.5,0,0,0,0.001);
 		 PID_init(&Chassis_Speed_pid_Rotate,8000,5,0, 3,0,0,0,0.001);
      CHASSIS.Action = ChassisNormal;
 }
-/* ¾ö¶¨µ×ÅÌ¿ØÖÆÄ£Ê½ */
+/* å†³å®šåº•ç›˜æ§åˆ¶æ–¹å¼ */
 void ChassisCtrl_Decide(){
 		if(DeviceState.Remote_State == Device_Online){
      RemoteMode == REMOTE_INPUT ? Chassis_RC_Ctrl():
@@ -39,56 +38,36 @@ void ChassisCtrl_Decide(){
 		}else Chassis_Close();
 
 }
-
 void Chassis_RC_Ctrl(){
 	Communication_Speed_Tx.Close_flag = 0;			
-    /* Ò£¿ØÆ÷µ÷ÊÔ»úÆ÷ÈË */
-#if RobotID == 0
-    switch (RC_CtrlData.rc.s1){
-        case 1:
-			CHASSIS.Action = ChassisNormal;
-            break;
-        case 3:
-			CHASSIS.Action = ChassisCheck;
-            break;
-        case 2:
-			CHASSIS.Action = ChassisFllow;
-        break;
-    }
-#elif RobotID == 1
-    switch (RC_CtrlData.rc.s1){
-        case 2:
-			CHASSIS.Action = ChassisNormal;
-            break;
-        case 3:
-			CHASSIS.Action = ChassisCheck;
-            break;
-        case 1:
-			CHASSIS.Action = ChassisFllow;
-			break;
-    }
-#endif
+	switch (RC_CtrlData.rc.s1){
+			case 1:
+		CHASSIS.Action = ChassisNormal;
+					break;
+			case 3:
+		CHASSIS.Action = ChassisCheck;
+					break;
+			case 2:
+		CHASSIS.Action = ChassisFllow;
+		break;
+	}
 }
 static char Key_F_flag = 0;
-/* ¼üÊóÄ£Ê½£¨µ×ÅÌ£© */
-void Chassis_Key_Ctrl()
-{
-    /*
-    WSAD Ç°ºó×óÓÒ
-    R Ğ¡ÍÓÂİ
-    F ×ªÍ·
-    */
+/**
+*@brief é”®é¼ 
+*@brief WSAD å‰åå·¦å³
+*@brief R å°é™€èº
+*@brief F è½¬å‘
+*/void Chassis_Key_Ctrl(){
     static char Key_R_flag = 0,Key_Ctrl_flag = 0;
 	  static uint16_t tim;
 	  tim ++;
-    /* WSÇ°ºó */
     if (RC_CtrlData.key.W)
         Key_ch[1] = 1;
     else if (RC_CtrlData.key.S)
         Key_ch[1] = -1;
     else
         Key_ch[1] = 0;
-    /* AD×óÓÒ */
     if (RC_CtrlData.key.A)
         Key_ch[0] = -1;
     else if (RC_CtrlData.key.D)
@@ -101,7 +80,6 @@ void Chassis_Key_Ctrl()
 		}else if(CHASSIS.Action != ChassisGyroscope){
     CHASSIS.Action = ChassisNormal;		
 		}
-    /* R¼üÇĞ»»Ğ¡ÍÓÂİ */
     if (RC_CtrlData.key.R == 1 && Key_R_flag == 0){
         if (CHASSIS.Action == ChassisNormal){
             CHASSIS.Action = ChassisGyroscope;
@@ -115,8 +93,6 @@ void Chassis_Key_Ctrl()
     }
     if (RC_CtrlData.key.R == 0)
         Key_R_flag = 0;
-    /* ¿ìËÙ×ªÏò180 */
-
     if (RC_CtrlData.key.F == 1 && Key_F_flag == 0){
         Key_F_flag = 1;
 			  tim = 0;
@@ -141,7 +117,7 @@ void Chassis_Key_Ctrl()
 
 }
 uint16_t R_C,L_C;
-/* ¸üĞÂµ×ÅÌÆÚÍû */
+/* æ›´æ–°åº•ç›˜æœŸæœ›å€¼ */
 void ChassisRef_Update(){
      static uint16_t Follow_Speed_MAX = 6000;		 
      static uint16_t Speed,tim;		 
@@ -214,39 +190,19 @@ void Chassis_Offset(){
 		R_C = Yaw_Mid_Right;
 	  L_C = Yaw_Mid_Left;
     //Shift¼ÓËÙ
-    if(RC_CtrlData.key.Shift)
-		{
+    if(RC_CtrlData.key.Shift){
 			Speed_Gain = 1400; 
-		}
-    else
+		}else
 			Speed_Gain = 800; 
 
 	if(CHASSIS.Action != ChassisRadar && CHASSIS.Action != ChassisCheck){
-//		 if(MidMode == FRONT){
-//		 forward_back_ref = Key_ch[1] * Speed_Gain;
-//		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
-//		 }else if(MidMode == BACK){
-//		 forward_back_ref = Key_ch[1] * Speed_Gain;
-//		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
-//		 }	
-#if RobotID == 0
-		 if(MidMode == FRONT){
-		 forward_back_ref = -Key_ch[1] * Speed_Gain;
-		 left_right_ref   = Key_ch[0] * Speed_Gain * 0.7;
-		 }else if(MidMode == BACK){
-		 forward_back_ref = -Key_ch[1] * Speed_Gain;
-		 left_right_ref   = Key_ch[0] * Speed_Gain * 0.7;
-		 }	
-#elif RobotID == 1
-		 if(MidMode == FRONT){
+		if(MidMode == FRONT){
 		 forward_back_ref = Key_ch[1] * Speed_Gain;
 		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
-		 }else if(MidMode == BACK){
+		}else if(MidMode == BACK){
 		 forward_back_ref = Key_ch[1] * Speed_Gain;
 		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
-		 }	
-
-#endif
+		}
 	}
     if(CHASSIS.Action == ChassisCheck){
 			left_right_ref = 0;

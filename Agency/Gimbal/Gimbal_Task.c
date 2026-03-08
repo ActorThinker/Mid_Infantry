@@ -19,5 +19,5 @@ void Gimbal_Task(){
 			Gimbal_SendDown();
 		}
       vTaskDelayUntil(&currentTime, 1);		 
-		}
+	}
 }

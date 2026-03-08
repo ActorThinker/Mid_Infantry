@@ -35,11 +35,11 @@ typedef struct{
 } Communication_Speed_t;
 // 云台->底盘数据包
 typedef struct  {
-    int16_t vx;            // 单位 基准速度的倍率（基准速度由底盘模块根据功率自动计算）
-    int16_t vy;            // 单位 基准速度的倍率
-    int16_t rotate;        // 单位 旋转速度度每秒
+  int16_t vx;            // 单位 基准速度的倍率（基准速度由底盘模块根据功率自动计算）
+  int16_t vy;            // 单位 基准速度的倍率
+  int16_t rotate;        // 单位 旋转速度度每秒
 	uint8_t Close_flag;				  //!< @brief 底盘关闭标志位
-    uint8_t Shift_flag;               //!< @brief Shift跑路
+  uint8_t Shift_flag;               //!< @brief Shift跑路
 } Gimbal_board_send_t;
 /**
  * @brief 云台角度结构体

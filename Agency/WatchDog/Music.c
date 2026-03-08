@@ -1,9 +1,6 @@
 #include "Music.h"
-
 #include "stm32f4xx_hal.h"
 #include "bsp_buzzer.h"
-
-
 //定义低音  
 #define A1  131
 #define A2  147
@@ -63,7 +60,6 @@ static void WriteNote(int note, float Long)
     Notes[write_id].end = Notes[write_id - 1].end + Long;
     write_id++;
 }
-
 /**
  * @brief 播放音乐
  * @param  none
@@ -83,7 +79,6 @@ bool MusicStartPlay(void ){
 	}
 	return end;
 }
-
 void MusicStartInit(void){
 	WriteNote(0,2);
 	WriteNote(B1,HalfBeat*2);

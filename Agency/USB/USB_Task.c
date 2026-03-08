@@ -8,6 +8,11 @@ ReceiveVisionData_t ReceiveVisionData = {.header.sof = 0x5A,
 																				 .header.id  = 0X02,
 																				 .eof = 0xA5,
 																				 .data.dis = -1};
+ReceiveVisionData_t last_ReceiveVisionData = {.header.sof = 0x5A,
+																				 .header.id  = 0X02,
+																				 .eof = 0xA5,
+																				 .data.dis = -1};
+
 static void UsbInit(void);
 static void UsbReceiveData(void);
 static void UsbSendImuData(void);
@@ -32,7 +37,14 @@ static void UsbReceiveData(void) {
 	static uint8_t data_buffer[64] = {0};
   uint32_t actual_len = 0;
   USB_Receive(data_buffer, &actual_len);
+	last_ReceiveVisionData = ReceiveVisionData;
 	memcpy(&ReceiveVisionData, data_buffer, sizeof(ReceiveVisionData_t));
+	if(memcmp(&ReceiveVisionData,&last_ReceiveVisionData,sizeof(ReceiveVisionData_t))!=0){
+		Feed_Dog(&PC_Dog);	
+	} else {
+		memset(&data_buffer,0,sizeof(data_buffer));
+		memset(&ReceiveVisionData.data,0,sizeof(ReceiveVisionData.data));
+	}
 }
 
 static void UsbSendImuData(void){

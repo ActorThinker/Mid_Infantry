@@ -31,10 +31,10 @@
 #define Pi 3.14159265358979f
 #if RobotID == 1
 /* 鏈烘瑙掑害*0.0439453125f */
-#define Yaw_Mid_Front 5200
+#define Yaw_Mid_Front 4758
 #define Pitch_Mid 1285
 #define P_ADD_limit 80
-#define P_LOSE_limit 35
+#define P_LOSE_limit 40
 #elif RobotID == 0
 #define Yaw_Mid_Front 1179
 #define Pitch_Mid 4333
@@ -145,11 +145,11 @@ extern int AimAllow;
 
 /* 裁判系统 */
 typedef struct  {
-//	int8_t  robot_color;     		// 机器人颜色
+	int8_t  robot_color;     			// 机器人颜色
 	uint16_t heat_limit_remain; 	// 剩余热量
 	uint16_t heat_limit_recover;	// 冷却速率
-	int16_t ChassisSpeed; 			//底盘角速度
-	int8_t game_state_robot_color;	//比赛状态    --0 未开始 --1 开始
+	int16_t BulletSpeed; 					//弹速
+	int8_t game_state_robot_color;//比赛状态    --0 未开始 --1 开始
 } Chassis_board_send_t;
 
 

@@ -39,7 +39,7 @@ float PID_Calc(PID_TypeDef *pid, float measure, float target){
 
 		pid->Output = pid->Pout + pid->Iout + pid->Dout + pid->Fout;
 		//Output limit
-		f_Output_Limit(pid);
+		f_Output_Limit(pid);   
 	}
 	pid->Last_Measure = pid->Measure;
 	pid->Last_Target  = pid->Target;

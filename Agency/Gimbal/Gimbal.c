@@ -16,7 +16,6 @@ int16_t Can2Send[4]={0};
 uint8_t RecodeGimbal = 0;
 
 void GimbalInit(){
-	Gimbal.Mode = Gyro;
 	GimbalCtrl = gNormal;
 	GimbalInitFlag = 1;
 	RecodeGimbal =   0;
@@ -34,53 +33,25 @@ void GimbalInit(){
 
 	PID_init(&Gimbal_Speed_pid_Pitch[AIM],6.0f*Pi,6.0f*Pi,0, 	0.5f,0,0,0,0.001f);	
 	PID_init(&Gimbal_Place_pid_Pitch[AIM],			3,1.5f,0,  		0.5f,0,0,0,0.001f);	
-	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,   2.0f,0,0,0,0.001f);	
-	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,    -2.0f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Place_pid_Yaw[AIM], 2.0f*Pi,2.0f*Pi,0,   1.8f,0,0,0,0.001f);	
+	PID_init(&Gimbal_Speed_pid_Yaw[AIM],				3,0.7f,0,    -1.8f,0,0,0,0.001f);	
 }
-
-void GimbalCtrl_Decide(){
-	if(DeviceState.Remote_State == Device_Online){
-		RemoteMode == REMOTE_INPUT ? Gimbal_RC_Ctrl():
-		RemoteMode == KEY_MOUSE_INPUT ? Gimbal_Key_Ctrl() :
-		Gimbal_Stop();
-	}else Gimbal_Stop();
-}
-float PitchOffset;
 void GimbalRef_Update(){
 	if(RecodeGimbal == 0){
 		Gimbal.Ref[Gyro].Yaw 	=	IMU.Angle_Yawcontinuous;
 		Gimbal.Ref[Gyro].Pitch 	=	IMU.Angle_Pitch;
 		Gimbal.Ref[Mech].Yaw 	=	Gimbal.Angle[Mech].ContinuousYaw;
 		Gimbal.Ref[Mech].Pitch 	=	Gimbal.Angle[Mech].Pitch;
-		PitchOffset = 0;
-		if(Gimbal.Mode == gAim){
-		Gimbal.Ref[Mech].Pitch = Gimbal.Angle[Mech].Pitch;
-		Gimbal.Angle[Mech].Pitch = Gimbal_Motor[PITCH].Angle_DEG;
-	}else{
-		Gimbal.Ref[Gyro].Pitch = IMU.Angle_Pitch;	 
-	 }
 		RecodeGimbal ++; 
-		}
+	}
 switch(GimbalCtrl){
 	case gNormal:
-		if(Gimbal.Mode == Gyro){
 		if(RemoteMode == REMOTE_INPUT){
 			Gimbal.increase[YAW]   = Key_ch[2] * 0.3f;
 			Gimbal.increase[PITCH] = Key_ch[3] * 0.1f;
 		}else if(RemoteMode == KEY_MOUSE_INPUT){
 			Gimbal.increase[YAW]    = Mouse_ch[0] * 0.25;
 			Gimbal.increase[PITCH]  = Mouse_ch[1] * 0.2;
-			}
-		}
-		else if(Gimbal.Mode == Mech){
-		if(RemoteMode == REMOTE_INPUT){
-			Gimbal.increase[YAW]   = Key_ch[2] * 1.5;
-			Gimbal.increase[PITCH] = Key_ch[3] * 0.02f;		
-		}else if(RemoteMode == KEY_MOUSE_INPUT){
-			Gimbal.increase[YAW]    = Mouse_ch[0] * 8.0;
-			Gimbal.increase[PITCH]  = Mouse_ch[1] * 0.1;	
-			
-			}
 		}
 		if(RC_CtrlData.key.E){
 			Gimbal.increase[YAW]    *= 0.2;
@@ -93,30 +64,30 @@ switch(GimbalCtrl){
 		limit(Gimbal.Ref[Mech].Pitch,P_ADD_limit,P_LOSE_limit);		 
 		break;
 	case gAim:
-		if(Gimbal.Mode == Gyro && ReceiveVisionData.data.dis > 0.1f){
-			PitchOffset -= Mouse_ch[1] * 0.01;
-			Gimbal.Ref[Gyro].Yaw   = ReceiveVisionData.data.Ref_Yaw;
-			Gimbal.Ref[Gyro].Pitch = ReceiveVisionData.data.Ref_Pitch;   		
-			Gimbal.increase[YAW]   = 0;
-			Gimbal.increase[PITCH] = 0;
-		}else{
-			if(RemoteMode == REMOTE_INPUT){
-				Gimbal.increase[YAW]   = Key_ch[2] * 0.1f;
-				Gimbal.increase[PITCH] = Key_ch[3] * 0.1f;
+			if(DeviceState.PC_State == 1 && ReceiveVisionData.data.dis > 0.1f){
+				Gimbal.increase[YAW]   = 0;
+				Gimbal.increase[PITCH] = 0;
+				Gimbal.Ref[Gyro].Yaw   = IMU.VisionAngle;
+				Gimbal.Ref[Gyro].Pitch = ReceiveVisionData.data.Ref_Pitch;
+			} else {
+				if(RemoteMode == REMOTE_INPUT){
+					Gimbal.increase[YAW]   = Key_ch[2] * 0.1f;
+					Gimbal.increase[PITCH] = Key_ch[3] * 0.1f;
+				}
+				else if(RemoteMode == KEY_MOUSE_INPUT){
+					Gimbal.increase[YAW]    = Mouse_ch[0] * 0.1;
+					Gimbal.increase[PITCH]  = Mouse_ch[1] * 0.02;
+				}		
+				Gimbal.Ref[Gyro].Yaw   -= (IMU.VisionAngle + Gimbal.increase[YAW]);
+				Gimbal.Ref[Gyro].Pitch -= (ReceiveVisionData.data.Ref_Pitch + Gimbal.increase[PITCH]);
+				Gimbal.Ref[Mech].Pitch -= (ReceiveVisionData.data.Ref_Pitch + Gimbal.increase[PITCH]);
 			}
-			else if(RemoteMode == KEY_MOUSE_INPUT){
-				Gimbal.increase[YAW]    = Mouse_ch[0] * 0.1;
-				Gimbal.increase[PITCH]  = Mouse_ch[1] * 0.02;
-		}
-		Gimbal.Ref[Gyro].Yaw   -= Gimbal.increase[YAW];
-		Gimbal.Ref[Gyro].Pitch -= Gimbal.increase[PITCH];
-		Gimbal.Ref[Mech].Pitch -= Gimbal.increase[PITCH];
-		}
-		Gimbal.LastCtrl = gAim;
+			Gimbal.LastCtrl = gAim;
 		break;
 	default :
-			Gimbal.Ref[Gyro].Yaw   = 0;
-			Gimbal.Ref[Gyro].Pitch = 0 + PitchOffset;   		
+			Gimbal.Ref[Gyro].Yaw   = IMU.Angle_Yawcontinuous;
+			Gimbal.Ref[Gyro].Pitch = Gimbal.Angle[Mech].Pitch;
+			Gimbal.Ref[Mech].Pitch = Gimbal.Angle[Mech].Pitch;
 		break;
   }
 }
@@ -128,82 +99,6 @@ void GimbalReal_Update(){
 
 	Gimbal.Angle[Mech].Pitch            = Gimbal_Motor[PITCH].Angle_DEG;
 	Gimbal.Speed[Mech].Pitch            = IMU.Gyro_Pitch;
-}
-
-void Gimbal_Key_Ctrl(){
-    static char Key_Q_flag = 0,Key_F_flag = 0;
-    static float Speed_K = 0.5;
-    static char mouse_r_flag = 0;
-	
-    if(GimbalCtrl != gAim){
-        if (RC_CtrlData.key.F == 1 && Key_F_flag == 0){
-			  Gimbal.Ref[Gyro].Yaw    += 180;
-            Key_F_flag = 1;
-        }
-        if (RC_CtrlData.key.F == 0)
-            Key_F_flag = 0;
-        //			if(NormalModeFlag != 0 && GimbalCtrl != gAim && GyroscopeModeFlag != 1){
-//			   if(Gimbal.Mode != Mech) RecodeGimbal = 0;
-//					GimbalCtrl = gNormal;
-//					Gimbal.Mode = Mech;
-//					GimbalPidMode = MECH;
-//			}else {
-					GimbalCtrl = gNormal;
-					if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
-					Gimbal.Mode = Gyro;
-					GimbalPidMode = GYRO;
-//      }
-		}
-
-        if(RC_CtrlData.mouse.press_r == 1 && mouse_r_flag == 0 ){
-					    if(GimbalCtrl != gAim || Gimbal.Mode != Gyro) RecodeGimbal = 0;
-							Gimbal.Mode = Gyro;
-							GimbalPidMode = AIM;
-							if(GimbalCtrl != gAim)GimbalCtrl = gAim;
-					    else GimbalCtrl = gNormal;
-					    mouse_r_flag = 1;
-        }
-        if (RC_CtrlData.mouse.press_r == 0)
-            mouse_r_flag = 0;		
-}
-
-void Gimbal_RC_Ctrl(){
-	switch (RC_CtrlData.rc.s1){
-		case 2:
-			GimbalCtrl = gAim;
-			if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
-			GimbalPidMode = AIM;
-			GimbalCtrl = gAim;
-//							GimbalCtrl = gNormal;
-//					    if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
-//							Gimbal.Mode = Gyro;
-//							GimbalPidMode = GYRO;
-
-		break;
-		case 3:
-
-			GimbalCtrl = gNormal;
-			if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
-			Gimbal.Mode = Gyro;
-			GimbalPidMode = GYRO;
-
-//							GimbalCtrl = gNormal
-//				    	if(Gimbal.Mode != Mech) RecodeGimbal = 0;;
-//							Gimbal.Mode = Mech;
-//							GimbalPidMode = MECH;
-		break;
-		case 1:
-//				        if(Gimbal.Mode != Mech) RecodeGimbal = 0;
-//							GimbalCtrl = gNormal;
-//							Gimbal.Mode = Mech;
-//							GimbalPidMode = MECH;
-
-			if(GimbalCtrl != gNormal || Gimbal.Mode != Gyro) RecodeGimbal = 0;
-			GimbalCtrl = gNormal;
-			Gimbal.Mode = Gyro;
-			GimbalPidMode = GYRO;
-		break;
-    }	
 }	
 void Gimbal_Stop(){
 	Gimbal.Ref[Gyro].Yaw   = Gimbal.Angle[Gyro].ContinuousYaw;
@@ -225,26 +120,26 @@ void Detect_Gimbal(){
 }
 void Gimbal_Pid(){
 	if (GimbalCtrl == gAim){
-		if(ReceiveVisionData.data.dis > 0.1f){
-			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,IMU.VisionAngle);
+		if(ReceiveVisionData.data.dis > 0.1f && DeviceState.PC_State == 1){ 
+			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,Gimbal.Ref[Gyro].Yaw);
 			PID_Calc(&Gimbal_Speed_pid_Yaw[AIM],IMU.Gyro_Yaw ,Gimbal_Place_pid_Yaw[AIM].Output + ReceiveVisionData.data.Ref_Vyaw);
 
-			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],IMU.Angle_Pitch,ReceiveVisionData.data.Ref_Pitch);
+			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],IMU.Angle_Pitch,Gimbal.Ref[Gyro].Pitch);
 			PID_Calc(&Gimbal_Speed_pid_Pitch[AIM],IMU.Gyro_Pitch ,Gimbal_Place_pid_Pitch[AIM].Output + ReceiveVisionData.data.Ref_Vpitch);
-			}else{
+		}else{
 			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,Gimbal.Ref[Gyro].Yaw);
 			PID_Calc(&Gimbal_Speed_pid_Yaw[AIM],IMU.Gyro_Yaw,Gimbal_Place_pid_Yaw[AIM].Output);
 			
 			PID_Calc(&Gimbal_Place_pid_Pitch[AIM],Gimbal.Angle[Mech].Pitch,Gimbal.Ref[Mech].Pitch);
 			PID_Calc(&Gimbal_Speed_pid_Pitch[AIM],Gimbal.Speed[Mech].Pitch,Gimbal_Place_pid_Pitch[AIM].Output);;
-			}
-    }else{
-			PID_Calc(&Gimbal_Place_pid_Yaw[GYRO],Gimbal.Angle[Gyro].ContinuousYaw,Gimbal.Ref[Gyro].Yaw);
+		}
+   }else{
+			PID_Calc(&Gimbal_Place_pid_Yaw[GYRO],IMU.Angle_Yawcontinuous,Gimbal.Ref[Gyro].Yaw);
 			PID_Calc(&Gimbal_Speed_pid_Yaw[GYRO],Gimbal.Speed[Gyro].Yaw,Gimbal_Place_pid_Yaw[GYRO].Output);
 		
 			PID_Calc(&Gimbal_Place_pid_Pitch[MECH],Gimbal.Angle[Mech].Pitch,Gimbal.Ref[Mech].Pitch);
 			PID_Calc(&Gimbal_Speed_pid_Pitch[MECH],Gimbal.Speed[Mech].Pitch,Gimbal_Place_pid_Pitch[MECH].Output); 						
-    }
+   }
 }
 void Gimbal_Send(){
 	if(GimbalCtrl == gAim){
@@ -325,6 +220,71 @@ void Gimbal_SendDown(){
 		else Gimbal_action.Gimbal_status.Yaw 	= 	Gimbal_offline; 
        
 }
+
+void GimbalCtrl_Decide(){
+	if(DeviceState.Remote_State == Device_Online){
+		RemoteMode == REMOTE_INPUT ? Gimbal_RC_Ctrl():
+		RemoteMode == KEY_MOUSE_INPUT ? Gimbal_Key_Ctrl() :
+		Gimbal_Stop();
+	}else Gimbal_Stop();
+}
+void Gimbal_RC_Ctrl(){
+	switch (RC_CtrlData.rc.s1){
+		case 1:
+//			GimbalCtrl = gAim;
+//			if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
+//			GimbalPidMode = AIM;
+							GimbalCtrl = gNormal;
+					    if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
+							Gimbal.Mode = Gyro;
+							GimbalPidMode = GYRO;
+
+			break;
+		case 3:
+			GimbalCtrl = gNormal;
+			if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
+			Gimbal.Mode = Gyro;
+			GimbalPidMode = GYRO;
+			break;
+		case 2:
+			if(GimbalCtrl != gNormal || Gimbal.Mode != Gyro) RecodeGimbal = 0;
+			GimbalCtrl = gNormal;
+			Gimbal.Mode = Gyro;
+			GimbalPidMode = GYRO;
+			break;
+    }	
+}
+void Gimbal_Key_Ctrl(){
+    static char Key_Q_flag = 0,Key_F_flag = 0;
+    static float Speed_K = 0.5;
+    static char mouse_r_flag = 0;
+	
+    if(GimbalCtrl != gAim){
+        if (RC_CtrlData.key.F == 1 && Key_F_flag == 0){
+			  Gimbal.Ref[Gyro].Yaw    += 180;
+            Key_F_flag = 1;
+        }
+        if (RC_CtrlData.key.F == 0)
+            Key_F_flag = 0;
+					GimbalCtrl = gNormal;
+					if(Gimbal.Mode != Gyro) RecodeGimbal = 0;
+					Gimbal.Mode = Gyro;
+					GimbalPidMode = GYRO;
+		}
+
+        if(RC_CtrlData.mouse.press_r == 1 && mouse_r_flag == 0 ){
+					    if(GimbalCtrl != gAim || Gimbal.Mode != Gyro) RecodeGimbal = 0;
+							Gimbal.Mode = Gyro;
+							GimbalPidMode = AIM;
+							if(GimbalCtrl != gAim)GimbalCtrl = gAim;
+					    else GimbalCtrl = gNormal;
+					    mouse_r_flag = 1;
+        }
+        if (RC_CtrlData.mouse.press_r == 0)
+            mouse_r_flag = 0;		
+}
+
+
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (hcan->Instance == CAN2){
     uint16_t CAN2_ID = CAN_Receive_DataFrame(&hcan2, CAN2_buff);

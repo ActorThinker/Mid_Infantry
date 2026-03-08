@@ -214,7 +214,7 @@ void Calibrate_MPU_Offset(IMU_Data_t *bmi088)
         }
 
         bmi088->gNorm /= (float)CaliTimes;
-        for (uint8_t i = 0; i < 3; ++i)
+        for (uint8_t i = 0; i < 3; i++)
             bmi088->GyroOffset[i] /= (float)CaliTimes;
 
         BMI088_accel_read_muli_reg(BMI088_TEMP_M, buf, 2);

@@ -1,11 +1,13 @@
 #include "MainCtrl_Task.h"
-
+#include "USB_Task.h"
+#include "Shoot.h" 
+#include "Task_Music.h"
 void MainCtrl_Task(){
 	static portTickType currentTime;
 	for (;;){
     static uint8_t cnt=0;
 		currentTime = xTaskGetTickCount();
-		if(DeviceState.Remote_State != Device_Online){
+		if(DeviceState.Remote_State != Device_Online){		
 			osThreadSuspend(Chassis_Task_handle);
 			osThreadSuspend(Gimbal_Task_handle);
 			osThreadSuspend(Shoot_Task_handle);

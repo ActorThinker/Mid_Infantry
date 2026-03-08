@@ -264,7 +264,6 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 6 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
-//  VCOMM_Receive_FS(Buf, Len);
   return (USBD_OK);
   /* USER CODE END 6 */
 }
@@ -329,8 +328,7 @@ uint8_t USB_Transmit(uint8_t* Buf, uint16_t Len)
     return usb_send_state;
 }
 
-int8_t USB_Receive(uint8_t* Buf, uint32_t *Len)
-{
+int8_t USB_Receive(uint8_t* Buf, uint32_t *Len){
     return CDC_Receive_FS(Buf,Len);
 }
 

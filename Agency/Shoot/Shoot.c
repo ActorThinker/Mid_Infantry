@@ -3,7 +3,7 @@
 #include "Function.h"
 #include "Time.h"
 #include "Gimbal.h"
-
+#include "Music.h"
 PID Shoot_Speed_PID[FRIC_SUM] = {{.Kp = 15, .Ki = 0, .Kd = 0, .limit = 5000},
 								 {.Kp = 15, .Ki = 0, .Kd = 0, .limit = 5000}};
 
@@ -13,8 +13,7 @@ PID Pluck_Continue_PID    = {.Kp = 20, .Ki = 0, .Kd = 0, .limit = 5000};
 
 int16_t Can1Send_Shoot[4] ={0};
 
-struct SHOOT
-{	
+struct SHOOT{	
 	int16_t Ref_3508[FRIC_SUM];
 	int16_t Ref_2006;
 	int16_t Ref_2006_Angle;
@@ -49,7 +48,6 @@ void ShootCtrl_Decide(){
 }
 void Shoot_Rc_Ctrl(){
 	if(GimbalCtrl != gAim){
-#if RobotID == 0
     switch (RC_CtrlData.rc.s1){
         case 1:
 							SHOOT.Action = SHOOT_RUNNING;
@@ -61,19 +59,6 @@ void Shoot_Rc_Ctrl(){
 							SHOOT.Action = SHOOT_STOP;
             break;
     }
-#elif RobotID == 1
-    switch (RC_CtrlData.rc.s1){
-        case 2:
-							SHOOT.Action = SHOOT_RUNNING;
-            break;
-        case 3:
-							SHOOT.Action = SHOOT_STOP;
-            break;
-        case 1:
-							SHOOT.Action = SHOOT_STOP;
-            break;
-    }
-#endif
 	}else{
 		switch(Aim_Data.AimShoot){
 			case AimFire:
@@ -129,90 +114,81 @@ void Shoot_Key_Ctrl(){
 }
 void Shoot_Stop(){
 	SHOOT.Action = SHOOT_STOP;
-		SHOOT.Ref_3508[LEFT]    =  0;
-    SHOOT.Ref_3508[RIGHT]   =  0; 
-		SHOOT.Ref_2006          =  0;
+	SHOOT.Ref_3508[LEFT]    =  0;
+  SHOOT.Ref_3508[RIGHT]   =  0; 
+	SHOOT.Ref_2006          =  0;
 	PID_Control(Pluck_Motor.Speed, SHOOT.Ref_2006, &Pluck_Speed_PID);
 	PID_Control(Shoot_Motor [LEFT].Speed, SHOOT.Ref_3508[LEFT], &Shoot_Speed_PID [LEFT]);
 	PID_Control(Shoot_Motor [RIGHT].Speed, SHOOT.Ref_3508[RIGHT], &Shoot_Speed_PID [RIGHT]);
 	limit(Pluck_Speed_PID.pid_out, PLUCK_SPEED, -PLUCK_SPEED);
-    limit(Shoot_Speed_PID[LEFT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
-    limit(Shoot_Speed_PID[RIGHT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
-    Can1Send_Shoot[0] = (int16_t)Pluck_Speed_PID.pid_out;       
-    Can1Send_Shoot[2] = (int16_t)Shoot_Speed_PID [LEFT].pid_out;
-    Can1Send_Shoot[1] = (int16_t)Shoot_Speed_PID [RIGHT].pid_out; 
+  limit(Shoot_Speed_PID[LEFT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
+  limit(Shoot_Speed_PID[RIGHT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
+  Can1Send_Shoot[0] = (int16_t)Pluck_Speed_PID.pid_out;       
+  Can1Send_Shoot[1] = (int16_t)Shoot_Speed_PID [RIGHT].pid_out; 
+  Can1Send_Shoot[2] = (int16_t)Shoot_Speed_PID [LEFT].pid_out;
 #if SHOOT_RUN
-    MotorSend(&hcan1, 0X200, Can1Send_Shoot);
+  MotorSend(&hcan1, 0X200, Can1Send_Shoot);
 #endif
 }
 void Shoot_Close(){
-     Can1Send_Shoot[0] = 0;       
-     Can1Send_Shoot[1] = 0;
-     Can1Send_Shoot[2] = 0; 
-
+	Can1Send_Shoot[0] = 0;       
+  Can1Send_Shoot[1] = 0;
+  Can1Send_Shoot[2] = 0; 
 #if SHOOT_RUN
-            MotorSend(&hcan1, 0X200, Can1Send_Shoot);
+  MotorSend(&hcan1, 0X200, Can1Send_Shoot);
 #endif
-
 }
 void Shoot_SendDown(){
-	   if(DeviceState.Pluck_State != Device_Online || DeviceState.Shoot_State[LEFT] != Device_Online || DeviceState.Shoot_State[RIGHT] != Device_Online)
-       Gimbal_action.shoot_status = shoot_offline;
-		 else Gimbal_action.shoot_status = shoot_online;
-		 if(SHOOT.Action == SHOOT_STOP)Gimbal_action.shoot_mode = shoot_mode_stop;
-		 else if(SHOOT.Action == SHOOT_RUNNING && GimbalCtrl != gAim) Gimbal_action.shoot_mode = shoot_mode_fire;
-		 else if(GimbalCtrl == gAim) Gimbal_action.shoot_mode = shoot_mode_follow;
-		 if(SHOOT.Action == SHOOT_STUCKING)Gimbal_action.shoot_mode = shoot_mode_stucking;
-		 
-
+	if(DeviceState.Pluck_State != Device_Online || DeviceState.Shoot_State[LEFT] != Device_Online || DeviceState.Shoot_State[RIGHT] != Device_Online)
+		Gimbal_action.shoot_status = shoot_offline;
+	else Gimbal_action.shoot_status = shoot_online;
+	
+	if(SHOOT.Action == SHOOT_STOP)	Gimbal_action.shoot_mode = shoot_mode_stop;
+	else if(SHOOT.Action == SHOOT_RUNNING && GimbalCtrl != gAim) Gimbal_action.shoot_mode = shoot_mode_fire;
+	else if(GimbalCtrl == gAim) Gimbal_action.shoot_mode = shoot_mode_follow;
+	
+	if(SHOOT.Action == SHOOT_STUCKING)Gimbal_action.shoot_mode = shoot_mode_stucking;		 
 } 
-void ShootRef_Set(){
-	   
-     SHOOT.Ref_3508[LEFT]    =  SHOOT_SPEED;
-     SHOOT.Ref_3508[RIGHT]   = -SHOOT_SPEED; 
-	   SHOOT.Angle_DEG         =  (Pluck_Motor.r * 8192 + Pluck_Motor.MchanicalAngle) * 0.0439453125f;	 
-    switch (SHOOT.Action)
-    {
-    case SHOOT_STOP:
-     Shoot_Stop();
-		 Time.Single             =  0;
-		 Angle_Target            = SHOOT.Angle_DEG;
-     SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
+void ShootRef_Set(){	   
+	SHOOT.Ref_3508[LEFT]    =  SHOOT_SPEED;
+  SHOOT.Ref_3508[RIGHT]   = -SHOOT_SPEED; 
+	SHOOT.Angle_DEG         =  (Pluck_Motor.r * 8192 + Pluck_Motor.MchanicalAngle) * 0.0439453125f;	 
+  switch (SHOOT.Action){
+		case SHOOT_STOP:
+			Shoot_Stop();
+			Time.Single             =  0;
+			Angle_Target            = SHOOT.Angle_DEG;
+			SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
 
      break;
-    case SHOOT_READY:
-     SHOOT.Ref_2006          =  0;
-	   Add_Angle_Flag			     =  1;
-		 Running_Flag            =  0;
-		 Pluck_Motor.r           =  0;
-		 Time.Single             =  0;
-		 Angle_Target            = SHOOT.Angle_DEG;
-     SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
-        break;
+		case SHOOT_READY:
+			SHOOT.Ref_2006          =  0;
+			Add_Angle_Flag			     =  1;
+			Running_Flag            =  0;
+			Pluck_Motor.r           =  0;
+			Time.Single             =  0;
+			Angle_Target            = SHOOT.Angle_DEG;
+			SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
+     break;
     case SHOOT_NORMAL:
-		if(Add_Angle_Flag == 1){
-
-		 SHOOT.Ref_2006_Angle    =  SHOOT.Angle_DEG;
-		 Angle_Target            = SHOOT.Angle_DEG + PLUCK_MOTOR_ONE *2;
+			if(Add_Angle_Flag == 1){
+				SHOOT.Ref_2006_Angle    =  SHOOT.Angle_DEG;
+				Angle_Target            = SHOOT.Angle_DEG + PLUCK_MOTOR_ONE *2;
 			}
-		 Add_Angle_Flag = 0;
-			break;
+			Add_Angle_Flag = 0;
+		 break;
     case SHOOT_RUNNING:
-
-						if(Referee_data_Rx.game_state_robot_color / 10 == 1){
-							break;
-						}
-				    else {
-						pluck_speed =  4000;
-						SHOOT.Ref_2006 =  4000;
-						}
-
-
-        break;
+			if(Referee_data_Rx.game_state_robot_color / 10 == 1){
+				break;
+			} else {
+				pluck_speed =  4000;
+				SHOOT.Ref_2006 =  4000;
+			}
+		 break;
     case SHOOT_STUCKING:
-		    SHOOT.Ref_2006 = -PLUCK_SPEED;
-        break;
-    }
+			SHOOT.Ref_2006 = -PLUCK_SPEED;
+     break;
+	}
 }
 
 void Shoot_Console(){
@@ -236,8 +212,8 @@ void Shoot_Console(){
 void Aim_Shoot(){
 	Aim_Data.AimShoot = AimReady;
 	if(GimbalCtrl == gAim ){
-		if(ReceiveVisionData.data.dis > 0.1f	&&	ReceiveVisionData.data.FireFlag == 1)
-			Aim_Data.AimShoot = AimFire;
+		if(ReceiveVisionData.data.dis > 0.1f	&&	ReceiveVisionData.data.FireFlag == 1){
+			Aim_Data.AimShoot = AimFire;}
 	}
 }
 void Shoot_Send(){
@@ -315,26 +291,20 @@ void ShootHeat_Limit(){
 //	}
 					
 }
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
-{
-  if (hcan->Instance == CAN1)
-  {
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+  if (hcan->Instance == CAN1){
     uint16_t CAN1_ID = CAN_Receive_DataFrame(&hcan1, CAN1_buff);
-    switch (CAN1_ID)
-    {
-        
-        case 0x201: M2006_Receive(&Pluck_Motor, CAN1_buff);
-                    Feed_Dog(&Pluck_Dog);
-                    break;
-        
-        case 0x203: RM3508_Receive(&Shoot_Motor[LEFT], CAN1_buff); 
+    switch (CAN1_ID){
+      case 0x201: M2006_Receive(&Pluck_Motor, CAN1_buff);
+              Feed_Dog(&Pluck_Dog);
+              break;  
+      case 0x203: RM3508_Receive(&Shoot_Motor[LEFT], CAN1_buff); 
                     Feed_Dog(&Shoot_Dog[LEFT]);
                     break;   
-        
-        case 0x202: RM3508_Receive(&Shoot_Motor[RIGHT], CAN1_buff);
+      case 0x202: RM3508_Receive(&Shoot_Motor[RIGHT], CAN1_buff);
                     Feed_Dog(&Shoot_Dog[RIGHT]);
                     break; 
-        default:    break;
+      default:    break;
     }
   }
 }

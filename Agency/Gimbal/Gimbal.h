@@ -15,9 +15,7 @@ extern eGimbalPidMode GimbalPidMode;
 
 typedef enum {
 	gNormal    = 0,
-	gAim       = 1,
-	gFllow     = 2,
-	gTest      = 3
+	gAim       = 1
 }eGimbalCtrl;
 extern eGimbalCtrl GimbalCtrl;
 
