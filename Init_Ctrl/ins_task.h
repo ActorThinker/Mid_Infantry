@@ -14,7 +14,6 @@ typedef struct{
 	float Pitch;
 	float Yaw;
 	float YawTotalAngle;
-	float VisionAngle;
 } INS_t;
 extern INS_t INS;
 typedef struct{

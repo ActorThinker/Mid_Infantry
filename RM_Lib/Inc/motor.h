@@ -11,7 +11,6 @@
 #define M2006_LIMIT  10000  //!<@brief M2006 的输出限幅
 
 #define DM4310_LIMIT 16384
-#define GM6020_Limit 16384  //6020电流输出限幅
 /**
  * @brief RM3508电机数据结构体
  */

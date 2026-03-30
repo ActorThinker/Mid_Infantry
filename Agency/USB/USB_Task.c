@@ -42,21 +42,25 @@ static void UsbReceiveData(void) {
 	if(memcmp(&ReceiveVisionData,&last_ReceiveVisionData,sizeof(ReceiveVisionData_t))!=0){
 		Feed_Dog(&PC_Dog);	
 	} else {
-		memset(&data_buffer,0,sizeof(data_buffer));
-		memset(&ReceiveVisionData.data,0,sizeof(ReceiveVisionData.data));
+//		memset(&data_buffer,0,sizeof(data_buffer));
+//		memset(&ReceiveVisionData.data,0,sizeof(ReceiveVisionData.data));
 	}
 }
 
 static void UsbSendImuData(void){
 	SEND_DATA_IMU.time_stamp = HAL_GetTick();//获取当前时间戳
-	SEND_DATA_IMU.data.bullet_speed = SHOOT_SPEED * 0.10472f * 0.03;//m/s 733.04是rpm转化为线速度 v=wr;
-	SEND_DATA_IMU.data.pitch = 	IMU.Angle_Pitch *Pi/180.0f;//rad
-	SEND_DATA_IMU.data.yaw 	 = 	IMU.Angle_Yaw 	*Pi/180.0f;
-	SEND_DATA_IMU.data.roll  =	IMU.Angle_Roll 	*Pi/180.0f;
+	SEND_DATA_IMU.data.bullet_speed = Referee_data_Rx.bullet_speed * 0.01f ;//m/s 733.04是rpm转化为线速度 v=wr;	
+	SEND_DATA_IMU.data.pitch = 	IMU.Angle_Pitch *Pi / 180.0f;//rad
+	SEND_DATA_IMU.data.yaw 	 = 	IMU.Angle_Yaw 	*Pi / 180.0f;
+	SEND_DATA_IMU.data.roll  =	IMU.Angle_Roll 	*Pi / 180.0f;
 	SEND_DATA_IMU.data.pitch_vel = IMU.Gyro_Pitch;
 	SEND_DATA_IMU.data.yaw_vel 	 = IMU.Gyro_Yaw;  
-	SEND_DATA_IMU.data.roll_vel  = IMU.Gyro_Roll; 
-	SEND_DATA_IMU.data.self_color = 1 ;//1蓝0红
+	SEND_DATA_IMU.data.roll_vel  = IMU.Gyro_Roll;
+	if(Referee_data_Rx.robot_color == 1){
+		SEND_DATA_IMU.data.self_color = 0;
+	}else{
+		SEND_DATA_IMU.data.self_color = 1; 
+	}
 
   USB_Transmit((uint8_t *)&SEND_DATA_IMU, sizeof(SendDataImu_s));
 }

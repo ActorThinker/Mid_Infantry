@@ -111,6 +111,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_TIM4_Init();
   MX_RNG_Init();
+  MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
     DWT_Init(168);
     while (BMI088Init(&hspi1, 1) != BMI088_NO_ERROR);	
@@ -186,9 +187,6 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @retval None

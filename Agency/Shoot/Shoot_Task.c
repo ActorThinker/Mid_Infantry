@@ -16,7 +16,6 @@ void Shoot_Task(void *pvParameters)
 		ShootCtrl_Decide();
 		Aim_Shoot();
 		Detect_Shoot();
-		ShootHeat_Limit();
 		ShootRef_Set();
 		Shoot_Console();
 		Shoot_Send();

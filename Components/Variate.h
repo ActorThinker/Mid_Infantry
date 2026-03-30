@@ -21,20 +21,18 @@
 #define CHASSIS_RUN 1
 #define GIMBAL_RUN  1
 #define SHOOT_RUN   1
-#define current_to_out 16384.0f / 3.0f
 #define RobotID 1 	
 /* speed*2*r*60 */
-#define SHOOT_SPEED 7000
-#define PLUCK_SPEED 8500
-#define PLUCK_MOTOR_ONE 1360
+#define SHOOT_SPEED 6500
+#define PLUCK_SPEED 6000
+#define ONE_BULLET_ANGLE 683 
 
 #define Pi 3.14159265358979f
 #if RobotID == 1
-/* æœºæ¢°è§’åº¦*0.0439453125f */
-#define Yaw_Mid_Front 4758
-#define Pitch_Mid 1285
-#define P_ADD_limit 80
-#define P_LOSE_limit 40
+#define Yaw_Mid_Front 5869
+#define Pitch_Mid 1408
+#define P_ADD_limit 16
+#define P_LOSE_limit -8
 #elif RobotID == 0
 #define Yaw_Mid_Front 1179
 #define Pitch_Mid 4333
@@ -143,17 +141,19 @@ typedef struct{
 extern AIM_Typedef Aim_Data;
 extern int AimAllow;
 
-/* ²ÃÅĞÏµÍ³ */
-typedef struct  {
-	int8_t  robot_color;     			// »úÆ÷ÈËÑÕÉ«
-	uint16_t heat_limit_remain; 	// Ê£ÓàÈÈÁ¿
-	uint16_t heat_limit_recover;	// ÀäÈ´ËÙÂÊ
-	int16_t BulletSpeed; 					//µ¯ËÙ
-	int8_t game_state_robot_color;//±ÈÈü×´Ì¬    --0 Î´¿ªÊ¼ --1 ¿ªÊ¼
+/** 
+ * @breief ä¸‹æ¿æ•°æ®ç»“æ„ 
+ * @param 
+ */
+typedef struct{
+	int8_t game_state;   //è‡ªèº«é¢œè‰²
+	int8_t robot_color;   //è‡ªèº«ç­‰çº§
+	uint8_t heat_limit; 		//å½“å‰çƒ­é‡
+	uint8_t heat_cooling;//å†·å´çƒ­é‡
+	uint16_t heat_now;
+	uint16_t bullet_speed;//å¼¹é€Ÿ
 } Chassis_board_send_t;
-
-
-/* ·¢ËÍµ×ÅÌÊı¾İ */
+/* å‘é€åº•ç›˜æ•°æ® */
 typedef enum {
 	Gimbal_offline = 0,    
 	Gimbal_online  = 1,     
@@ -192,7 +192,7 @@ typedef struct  {
 } Gimbal_status_t;
 
 typedef struct  {
-	uint16_t vision_distance;  
+	int16_t vision_distance;  
 	int16_t Pitch_angle;
 	int16_t Yaw_angle;
 	uint16_t Offset_Angle;

@@ -1,6 +1,9 @@
 #include "Chassis.h"
 #include "arm_math.h"
 #include "rng.h"
+#include "USB_Task.h"
+#include "VT03.h"
+
 PID_TypeDef Chassis_Place_pid_Rotate;
 PID_TypeDef Chassis_Speed_pid_Rotate;
 FeedForward_Typedef Chassis_FF = {.K1 = 1000.00, .OutMax = RM3508_LIMIT};        //ÂâçÈ¶à
@@ -25,8 +28,8 @@ Communication_Speed_t Communication_Speed_Tx;
 /* Â∫ïÁõòÂàùÂßãÂåñ */
 void ChassisInit(){
 	   Mid_Front = Yaw_Mid_Front;
-		 PID_init(&Chassis_Place_pid_Rotate,8000,5,0, -2.5,0,0,0,0.001);
-		 PID_init(&Chassis_Speed_pid_Rotate,8000,5,0, 3,0,0,0,0.001);
+		 PID_init(&Chassis_Place_pid_Rotate,8000,5,0, -2.5,0,0,0);
+		 PID_init(&Chassis_Speed_pid_Rotate,8000,5,0, 3,0,0,0);
      CHASSIS.Action = ChassisNormal;
 }
 /* ÂÜ≥ÂÆöÂ∫ïÁõòÊéßÂà∂ÊñπÂºè */
@@ -36,16 +39,15 @@ void ChassisCtrl_Decide(){
      RemoteMode == KEY_MOUSE_INPUT ? Chassis_Key_Ctrl() :
 		 Chassis_Stop();
 		}else Chassis_Close();
-
 }
 void Chassis_RC_Ctrl(){
-	Communication_Speed_Tx.Close_flag = 0;			
+	Communication_Speed_Tx.Close_flag = 0;
 	switch (RC_CtrlData.rc.s1){
 			case 1:
 		CHASSIS.Action = ChassisNormal;
 					break;
 			case 3:
-		CHASSIS.Action = ChassisCheck;
+		CHASSIS.Action = ChassisCheck ;
 					break;
 			case 2:
 		CHASSIS.Action = ChassisFllow;
@@ -76,16 +78,15 @@ static char Key_F_flag = 0;
         Key_ch[0] = 0;
 		 Communication_Speed_Tx.Close_flag = 0;			
 	  if(NormalModeFlag != 0 && GyroscopeModeFlag != 1){
-    CHASSIS.Action = ChassisNormal;
+			CHASSIS.Action = ChassisNormal;
 		}else if(CHASSIS.Action != ChassisGyroscope){
-    CHASSIS.Action = ChassisNormal;		
+			CHASSIS.Action = ChassisNormal;		
 		}
     if (RC_CtrlData.key.R == 1 && Key_R_flag == 0){
         if (CHASSIS.Action == ChassisNormal){
             CHASSIS.Action = ChassisGyroscope;
 				    GyroscopeModeFlag = 1;
-				}
-        else{
+				} else {
    					CHASSIS.Action = ChassisNormal;
 				    GyroscopeModeFlag = 0;
 				}
@@ -102,19 +103,6 @@ static char Key_F_flag = 0;
         }
     }
 		if(RC_CtrlData.key.Ctrl) CHASSIS.Action = ChassisFllow;
-//    /* Ctrlº¸«–ªªµÿ≈Ã∏˙ÀÊ */
-//    if (RC_CtrlData.key.Ctrl == 1 && Key_Ctrl_flag == 0){
-//        if (CHASSIS.Action == ChassisNormal){
-//            CHASSIS.Action = ChassisFllow;
-//				}
-//        else{
-//   					CHASSIS.Action = ChassisNormal;
-//				}
-//        Key_Ctrl_flag = 1;
-//    }
-//    if (RC_CtrlData.key.Ctrl == 0)
-//        Key_Ctrl_flag = 0;
-
 }
 uint16_t R_C,L_C;
 /* Êõ¥Êñ∞Â∫ïÁõòÊúüÊúõÂÄº */
@@ -122,13 +110,10 @@ void ChassisRef_Update(){
      static uint16_t Follow_Speed_MAX = 6000;		 
      static uint16_t Speed,tim;		 
 	   static uint16_t Ramp_rotate_ref;	
-
+		 float angle;
 		 switch(CHASSIS.Action){
 			 case ChassisFllow:
-				 
-			/* µ◊≈Ã∏˙ÀÊ£®÷±Ω”≈–∂œYaw÷·ª˙–µΩ«∂»≈–∂œ◊ÓΩ¸πÈ÷–Œª÷√£© */
-       Chassis_FF.Now_DeltIn = Key_ch[2] + Mouse_ch[0] * 0.8;
-
+				Chassis_FF.Now_DeltIn = Key_ch[2] + Mouse_ch[0] * 0.8;
 #if   Yaw_Mid_Right < Yaw_Mid_Left
         if ( (Gimbal_Motor[YAW].MchanicalAngle <= Yaw_Mid_Left) && (Gimbal_Motor[YAW].MchanicalAngle >= Yaw_Mid_Right) ){
 #elif Yaw_Mid_Right > Yaw_Mid_Left
@@ -155,10 +140,19 @@ void ChassisRef_Update(){
 				break;	
 				
 				case ChassisGyroscope:
-		    if(Key_ch[0] == 0 && Key_ch[1] == 0 &&RC_CtrlData.key.Shift == 0){
-        Ramp_rotate_ref = 4000;
-	      Communication_Speed_Tx.Chassis_Speed.rotate_ref   = RAMP_float(Ramp_rotate_ref,Communication_Speed_Tx.Chassis_Speed.rotate_ref,15) ;	
-		    }			
+//		    if(Key_ch[0] == 0 && Key_ch[1] == 0 &&RC_CtrlData.key.Shift == 0){
+					if (Gimbal_Motor[YAW].MchanicalAngle <= 7880 && Gimbal_Motor[YAW].MchanicalAngle >= 5830)
+						angle = ABS(6855.0f - Gimbal_Motor[YAW].MchanicalAngle) / 2050.57f;
+					if (Gimbal_Motor[YAW].MchanicalAngle <= 5830 && Gimbal_Motor[YAW].MchanicalAngle >= 3780)
+						angle = ABS(4805.0f - Gimbal_Motor[YAW].MchanicalAngle) / 2050.57f;
+					if (Gimbal_Motor[YAW].MchanicalAngle <= 3780 && Gimbal_Motor[YAW].MchanicalAngle >= 1730)
+						angle = ABS(2755.0f - Gimbal_Motor[YAW].MchanicalAngle) / 2050.57f;
+					if (Gimbal_Motor[YAW].MchanicalAngle <= 1730 && Gimbal_Motor[YAW].MchanicalAngle > 0)
+						angle = ABS(865.0f - Gimbal_Motor[YAW].MchanicalAngle) / 2050.57f;
+					if (Gimbal_Motor[YAW].MchanicalAngle <= 8191 && Gimbal_Motor[YAW].MchanicalAngle >= 7880)
+						angle = ABS(8036 - Gimbal_Motor[YAW].MchanicalAngle) / 2050.57f;
+					Ramp_rotate_ref = 300.0f * PI + 2000.0f * PI * arm_cos_f32(angle*PI);				
+	      Communication_Speed_Tx.Chassis_Speed.rotate_ref = RAMP_float( - Ramp_rotate_ref,Communication_Speed_Tx.Chassis_Speed.rotate_ref,15) ;	
 				break;	
 				
 				case ChassisStop:
@@ -171,25 +165,22 @@ void ChassisRef_Update(){
 				Communication_Speed_Tx.Chassis_Speed.rotate_ref       = 0;
 					
 				break;
-				case ChassisCheck:
-					
-				break;
-				
+				case ChassisCheck:					break;
 		 }
 }
-/* µ◊≈Ã≤π≥•º∆À„ */
+/* Â∫ïÁõòË°•ÂÅøËÆ°ÁÆó */
 void Chassis_Offset(){
     static float Level_Gain, chassis_offset;
     static int16_t forward_back_ref = 0, left_right_ref = 0,rotate_ref = 0;
     static int16_t Speed_Gain;
-	   static float Ramp_forward_back_ref,Ramp_left_right_ref,Ramp_rotate_ref;	
+	  static float Ramp_forward_back_ref,Ramp_left_right_ref,Ramp_rotate_ref;	
 
-    chassis_offset = (Gimbal_Motor[YAW].MchanicalAngle - Yaw_Mid_Front) / 1303.64f;   // µ◊≈Ã≤π≥•Ω«
+    chassis_offset = (Gimbal_Motor[YAW].MchanicalAngle - Yaw_Mid_Front) / 1303.64f;   //Â∫ïÁõòË°•ÂÅøËßíÂ∫¶
 	  Gimbal_data.Offset_Angle = chassis_offset * 1000;
-		
+		Gimbal_data.vision_distance = ReceiveVisionData.data.dis * 100;
 		R_C = Yaw_Mid_Right;
 	  L_C = Yaw_Mid_Left;
-    //Shiftº”ÀŸ
+    //ShiftÂä†ÈÄü
     if(RC_CtrlData.key.Shift){
 			Speed_Gain = 1400; 
 		}else
@@ -197,26 +188,24 @@ void Chassis_Offset(){
 
 	if(CHASSIS.Action != ChassisRadar && CHASSIS.Action != ChassisCheck){
 		if(MidMode == FRONT){
-		 forward_back_ref = Key_ch[1] * Speed_Gain;
-		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
+		 forward_back_ref = ( - Key_ch[1]) * Speed_Gain;
+		 left_right_ref   = (   Key_ch[0]) * Speed_Gain * 0.7;
 		}else if(MidMode == BACK){
-		 forward_back_ref = Key_ch[1] * Speed_Gain;
-		 left_right_ref   = -Key_ch[0] * Speed_Gain * 0.7;
+		 forward_back_ref = (- Key_ch[1]) * Speed_Gain;
+		 left_right_ref   = (  Key_ch[0]) * Speed_Gain * 0.7;
 		}
 	}
     if(CHASSIS.Action == ChassisCheck){
 			left_right_ref = 0;
-			Communication_Speed_Tx.Chassis_Speed.rotate_ref   = Key_ch[0] * 3500;
+			Communication_Speed_Tx.Chassis_Speed.rotate_ref   = (Key_ch[0]) * 3500;
 		}
-		if(CHASSIS.Action ==ChassisGyroscope &&(Key_ch[0] || Key_ch[1] || RC_CtrlData.key.Shift == 1)){
+		if(CHASSIS.Action ==ChassisGyroscope && ( Key_ch[0] || Key_ch[1] || RC_CtrlData.key.Shift == 1)){
 			rotate_ref = 4000 * 0.6;
 			Ramp_rotate_ref = RAMP_float(rotate_ref,Ramp_rotate_ref,Speed_Gain/750.0); 
      Communication_Speed_Tx.Chassis_Speed.rotate_ref = RAMP_float(rotate_ref,Communication_Speed_Tx.Chassis_Speed.rotate_ref,Speed_Gain/750.0); 
 		}
-			
-    /* µ◊≈Ã≤π≥•(–°Õ”¬›ƒ£ Ω“≤ƒ‹’˝≥£“∆∂Ø)Y÷·‘⁄œﬂ≤≈ƒ‹Ω‚À„≤π≥• */
-    if(DeviceState.Gimbal_State[YAW] == Device_Online){
-        Communication_Speed_Tx.Chassis_Speed.forward_back_ref = forward_back_ref * arm_sin_f32( -chassis_offset)//µ◊≈ÃΩ‚À„(–°Õ”¬›ƒ£ Ω“≤ƒ‹’˝≥£“∆∂Ø)
+		if(DeviceState.Gimbal_State[YAW] == Device_Online){
+        Communication_Speed_Tx.Chassis_Speed.forward_back_ref = forward_back_ref * arm_sin_f32( -chassis_offset)
                                                                 + left_right_ref * arm_cos_f32( -chassis_offset);
         Communication_Speed_Tx.Chassis_Speed.left_right_ref   = forward_back_ref * arm_cos_f32( chassis_offset) 
                                                                 + left_right_ref * arm_sin_f32( chassis_offset);
@@ -226,10 +215,9 @@ void Chassis_Offset(){
     }
 }
 void Chassis_Stop(){
-CHASSIS.Action = ChassisStop;
+	CHASSIS.Action = ChassisStop;
 }
-void Chassis_Close()
-{
+void Chassis_Close(){
     Communication_Speed_Tx.Chassis_Speed.rotate_ref       = 0;
     Communication_Speed_Tx.Chassis_Speed.forward_back_ref = 0;
     Communication_Speed_Tx.Chassis_Speed.left_right_ref   = 0;

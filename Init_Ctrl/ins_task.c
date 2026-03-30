@@ -56,7 +56,6 @@ void INS_Task(void){
 	INS.Pitch = QEKF_INS.Pitch;
 	INS.Roll = QEKF_INS.Roll;
 	INS.YawTotalAngle = QEKF_INS.YawTotalAngle;
-	INS.VisionAngle = QEKF_INS.VisionAngle;
 	IMU_Rx();
 	Feed_Dog(&IMU_Dog);
 	if ((count % 2) == 0){			// 500hz
@@ -69,7 +68,6 @@ void IMU_Rx(){
 	IMU.Angle_Pitch         = INS.Pitch;
 	IMU.Angle_Yaw           = INS.Yaw;
 	IMU.Angle_Yawcontinuous = INS.YawTotalAngle;
-	IMU.VisionAngle 				= INS.VisionAngle;
 	IMU.Gyro_Roll           = INS.Gyro[1];
 	IMU.Gyro_Pitch          = INS.Gyro[0];
 	IMU.Gyro_Yaw            = INS.Gyro[2];

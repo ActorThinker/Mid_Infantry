@@ -47,7 +47,6 @@ typedef struct
     float AdaptiveGainScale;
 
     float YawTotalAngle;
-		float VisionAngle;
     mat ChiSquare;
     int16_t YawRoundCount;
     float YawAngleLast;

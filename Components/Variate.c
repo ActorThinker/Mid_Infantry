@@ -17,3 +17,4 @@ eSystemState SystemState;
 DeviceStates DeviceState;
 eAimAction AimAction         = AIM_STOP;
 eMidMode MidMode             = FRONT;
+ 

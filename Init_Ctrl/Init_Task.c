@@ -30,7 +30,8 @@ void Init_Task(){
 	xTaskCreate((TaskFunction_t)Shoot_Task,		   	"Shoot_Task",        256,   NULL, 4, &Shoot_Task_handle);		
 	xTaskCreate((TaskFunction_t)usb_task,         "usb_task",          256 *2,NULL, 4, &usb_task_handle);				
 	xTaskCreate((TaskFunction_t)Gimbal_Task,      "Gimbal_Task",       256,   NULL, 4, &Gimbal_Task_handle);
-	xTaskCreate((TaskFunction_t)Plotter_Task,   	"Plotter_Task",			 128,   NULL, 4, &Plotter_Task_handle);
+//	xTaskCreate((TaskFunction_t)Plotter_Task,   	"Plotter_Task",			 128,   NULL, 4, &Plotter_Task_handle);
+	xTaskCreate((TaskFunction_t)VT03_Task,   			"VT03_Task",			 	 256,   NULL, 5, &VT03_Task_handle);
 	xTaskCreate((TaskFunction_t)Chassis_Task,     "Chassis_Task",      256,   NULL, 4, &Chassis_Task_handle);
 	xTaskCreate((TaskFunction_t)Music_Task,       "Music_Task",        256,   NULL, 4, &Music_Task_handle);
 

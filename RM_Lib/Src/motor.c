@@ -87,9 +87,9 @@ void M2006_Receive(M2006_TypeDef *Dst, uint8_t *Data) {
         Dst->flag = 1;
     if(Dst->flag == 1)
     {
-        if (diff > 4000)
+        if (diff > 4096)
             Dst->r--;
-        if (diff < -4000)
+        if (diff < -4096)
             Dst->r++;
     }
 

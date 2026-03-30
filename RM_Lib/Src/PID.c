@@ -10,7 +10,7 @@
 
 #define LIMIT_MAX_MIN(x, max, min)	(((x) <= (min)) ? (min):(((x) >= (max)) ? (max) : (x)))
 
-void PID_init(PID_TypeDef *pid,uint16_t max_out,float intergrallimit,float deadband,float Kp,float Ki,float Kd,float Kf,float dt){
+void PID_init(PID_TypeDef *pid,uint16_t max_out,float intergrallimit,float deadband,float Kp,float Ki,float Kd,float Kf){
 	pid->DeadBand = deadband;
 	pid->IntegralLimit = intergrallimit;
 	pid->MaxOut = max_out;
@@ -20,7 +20,6 @@ void PID_init(PID_TypeDef *pid,uint16_t max_out,float intergrallimit,float deadb
 	pid->Ki = Ki;
 	pid->Kd = Kd;
 	pid->Kf = Kf;
-	pid->dt = dt;
 	pid->ITerm = 0;
 }
 /***************************PID calculate**********************************/
@@ -34,7 +33,7 @@ float PID_Calc(PID_TypeDef *pid, float measure, float target){
   if (ABS(pid->Err) > pid->DeadBand){
 		pid->Pout  = pid->Kp * pid->Err;
 		pid->Iout += pid->Ki * pid->Err;
-		pid->Dout  = pid->Kd * (pid->Err - pid->Last_Err)/pid->dt;
+		pid->Dout  = pid->Kd * (pid->Err - pid->Last_Err);
 		pid->Fout  = pid->Kf * (pid->Target - pid->Last_Target);
 
 		pid->Output = pid->Pout + pid->Iout + pid->Dout + pid->Fout;

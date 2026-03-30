@@ -53,8 +53,7 @@ void PID_init(
 	float kp,
 	float ki,
 	float kd,
-	float kf,
-	float dt
+	float kf
 );
 float PID_Calc(PID_TypeDef *pid, float measure, float target);
 /**

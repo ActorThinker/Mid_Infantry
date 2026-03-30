@@ -32,9 +32,12 @@
 
 /* USER CODE END 1 */
 
-/** Configure pins
-     PG14   ------> USART6_TX
-     PG9   ------> USART6_RX
+/** Configure pins as
+        * Analog
+        * Input
+        * Output
+        * EVENT_OUT
+        * EXTI
 */
 void MX_GPIO_Init(void)
 {
@@ -65,14 +68,6 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SPI2_CS_Pin|CS1_GYRO_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pins : PG14 PG9 */
-  GPIO_InitStruct.Pin = GPIO_PIN_14|GPIO_PIN_9;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PIPin PIPin */
   GPIO_InitStruct.Pin = HALL_SENSOR_PIN2_Pin|HALL_SENSOR_PIN1_Pin;

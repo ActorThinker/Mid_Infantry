@@ -75,6 +75,8 @@
 "..\Components\Algorithm\RMLib.lib"
 "c_board_standard_robot\function.o"
 "c_board_standard_robot\controller.o"
+"c_board_standard_robot\vt03.o"
+"c_board_standard_robot\crc.o"
 "c_board_standard_robot\init_task.o"
 "c_board_standard_robot\ins_task.o"
 "c_board_standard_robot\mainctrl_task.o"

@@ -8,7 +8,7 @@
 #ifndef _WATCH_DOG_H_
 #define _WATCH_DOG_H_
 
-#define WatchDoglength 9
+#define WatchDoglength 10
 
 #if defined(WatchDoglength) && WatchDoglength > 0
 

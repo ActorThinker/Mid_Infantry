@@ -4,10 +4,12 @@
 #include "Time.h"
 #include "Gimbal.h"
 #include "Music.h"
+#include "VT03.h"
+
 PID Shoot_Speed_PID[FRIC_SUM] = {{.Kp = 15, .Ki = 0, .Kd = 0, .limit = 5000},
 								 {.Kp = 15, .Ki = 0, .Kd = 0, .limit = 5000}};
 
-PID_Smis Pluck_Place_PIDS = {.Kp = 30, .Ki = 0, .Kd = - 0.8, .limit = 5000}; 
+PID_Smis Pluck_Place_PIDS = {.Kp = 10, .Ki = 0, .Kd = 0, .limit = 5000}; 
 PID Pluck_Speed_PID 	  = {.Kp = 10, .Ki = 0, .Kd = 0, .limit = 5000};                   
 PID Pluck_Continue_PID    = {.Kp = 20, .Ki = 0, .Kd = 0, .limit = 5000};               
 
@@ -17,7 +19,7 @@ struct SHOOT{
 	int16_t Ref_3508[FRIC_SUM];
 	int16_t Ref_2006;
 	int16_t Ref_2006_Angle;
-	float   Angle_DEG;
+	float   Pluck_Angle;
 	enum{
 		SHOOT_STOP = 0,
 		SHOOT_READY = 1,
@@ -38,9 +40,8 @@ float 	RAMP_Angle_Target = 0;
 uint16_t tim = 0;
 uint16_t Stuck_time = 0;
 
-void ShootCtrl_Decide(){
-	   
-		if(DeviceState.Remote_State == Device_Online){
+void ShootCtrl_Decide(){	   
+		if(DeviceState.Remote_State == Device_Online || DeviceState.Referee_State == Device_Online){
 		 RemoteMode == REMOTE_INPUT ? Shoot_Rc_Ctrl():
      RemoteMode == KEY_MOUSE_INPUT ? Shoot_Key_Ctrl() :
 		 Shoot_Stop();
@@ -48,18 +49,18 @@ void ShootCtrl_Decide(){
 }
 void Shoot_Rc_Ctrl(){
 	if(GimbalCtrl != gAim){
-    switch (RC_CtrlData.rc.s1){
-        case 1:
-							SHOOT.Action = SHOOT_RUNNING;
+				switch (RC_CtrlData.rc.s1){
+					case 1:
+							SHOOT.Action = SHOOT_NORMAL;
             break;
-        case 3:
+					case 3:
 							SHOOT.Action = SHOOT_STOP;
             break;
-        case 2:
+					case 2:
 							SHOOT.Action = SHOOT_STOP;
             break;
-    }
-	}else{
+				}	
+	} else {
 		switch(Aim_Data.AimShoot){
 			case AimFire:
 							SHOOT.Action = SHOOT_RUNNING;
@@ -97,9 +98,9 @@ void Shoot_Key_Ctrl(){
 	 }else {
 		switch(Aim_Data.AimShoot){
 			case AimFire:
-				if(RC_CtrlData.mouse.press_l)
+//				if(RC_CtrlData.mouse.press_l)
 					SHOOT.Action = SHOOT_RUNNING;
-				else SHOOT.Action = SHOOT_READY;
+//				else SHOOT.Action = SHOOT_READY;
 					break;
 			case AimReady:
 				SHOOT.Action = SHOOT_READY;
@@ -152,14 +153,13 @@ void Shoot_SendDown(){
 void ShootRef_Set(){	   
 	SHOOT.Ref_3508[LEFT]    =  SHOOT_SPEED;
   SHOOT.Ref_3508[RIGHT]   = -SHOOT_SPEED; 
-	SHOOT.Angle_DEG         =  (Pluck_Motor.r * 8192 + Pluck_Motor.MchanicalAngle) * 0.0439453125f;	 
+	SHOOT.Pluck_Angle       =  Pluck_Motor.Angle;	 
   switch (SHOOT.Action){
 		case SHOOT_STOP:
 			Shoot_Stop();
 			Time.Single             =  0;
-			Angle_Target            = SHOOT.Angle_DEG;
-			SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
-
+			Angle_Target            = SHOOT.Pluck_Angle;
+			SHOOT.Ref_2006_Angle    = SHOOT.Pluck_Angle;
      break;
 		case SHOOT_READY:
 			SHOOT.Ref_2006          =  0;
@@ -167,22 +167,22 @@ void ShootRef_Set(){
 			Running_Flag            =  0;
 			Pluck_Motor.r           =  0;
 			Time.Single             =  0;
-			Angle_Target            = SHOOT.Angle_DEG;
-			SHOOT.Ref_2006_Angle    = SHOOT.Angle_DEG;
+			Angle_Target            = SHOOT.Pluck_Angle;
+			SHOOT.Ref_2006_Angle    = SHOOT.Pluck_Angle;
      break;
     case SHOOT_NORMAL:
-			if(Add_Angle_Flag == 1){
-				SHOOT.Ref_2006_Angle    =  SHOOT.Angle_DEG;
-				Angle_Target            = SHOOT.Angle_DEG + PLUCK_MOTOR_ONE *2;
+			if(Time.Single % 1000 == 0){
+				SHOOT.Ref_2006_Angle =  SHOOT.Pluck_Angle;
+				Angle_Target = SHOOT.Pluck_Angle + ONE_BULLET_ANGLE;
+			}else {
+				Angle_Target = SHOOT.Pluck_Angle;
 			}
-			Add_Angle_Flag = 0;
-		 break;
+			break;
     case SHOOT_RUNNING:
-			if(Referee_data_Rx.game_state_robot_color / 10 == 1){
-				break;
+			if(Referee_data_Rx.game_state == 1){
+				ShootHeat_Limit();
 			} else {
-				pluck_speed =  4000;
-				SHOOT.Ref_2006 =  4000;
+				SHOOT.Ref_2006 = 4000;
 			}
 		 break;
     case SHOOT_STUCKING:
@@ -193,18 +193,13 @@ void ShootRef_Set(){
 
 void Shoot_Console(){
     if((SHOOT.Action == SHOOT_NORMAL)){
-			if(SHOOT.Action == SHOOT_NORMAL)SHOOT.Ref_2006_Angle = RAMP_float (Angle_Target, SHOOT.Ref_2006_Angle, 100);
-			PID_Control_Smis(SHOOT.Angle_DEG, SHOOT.Ref_2006_Angle, &Pluck_Place_PIDS, Pluck_Motor.Speed);
-			SHOOT.Ref_2006 = Pluck_Place_PIDS.pid_out;
-			 if(Time.Single > 300 ){
-					SHOOT.Ref_2006          =  Pluck_Place_PIDS.pid_out;
-					Time.Single             =  0;
-				  Angle_Target            =  0;
-			 }
-			}
-			PID_Control(Pluck_Motor.Speed, SHOOT.Ref_2006, &Pluck_Speed_PID);
+			PID_Control_Smis(SHOOT.Ref_2006_Angle,Angle_Target, &Pluck_Place_PIDS, Pluck_Motor.Speed);
+			PID_Control(Pluck_Motor.Speed, Pluck_Place_PIDS.pid_out, &Pluck_Speed_PID);
+		}else{
+				PID_Control(Pluck_Motor.Speed,SHOOT.Ref_2006,&Pluck_Speed_PID);
+		}
 			PID_Control(Shoot_Motor [LEFT].Speed, SHOOT.Ref_3508[LEFT], &Shoot_Speed_PID [LEFT]);
-			PID_Control(Shoot_Motor [RIGHT].Speed, SHOOT.Ref_3508[RIGHT], &Shoot_Speed_PID [RIGHT]);
+			PID_Control(Shoot_Motor [RIGHT].Speed, SHOOT.Ref_3508[RIGHT], &Shoot_Speed_PID [RIGHT]);			
 			limit(Pluck_Speed_PID.pid_out, M2006_LIMIT, -M2006_LIMIT);
 			limit(Shoot_Speed_PID[LEFT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
 			limit(Shoot_Speed_PID[RIGHT].pid_out, RM3508_LIMIT, -RM3508_LIMIT);
@@ -212,7 +207,7 @@ void Shoot_Console(){
 void Aim_Shoot(){
 	Aim_Data.AimShoot = AimReady;
 	if(GimbalCtrl == gAim ){
-		if(ReceiveVisionData.data.dis > 0.1f	&&	ReceiveVisionData.data.FireFlag == 1){
+		if((ReceiveVisionData.data.dis > 0.1f	&&	ReceiveVisionData.data.FireFlag == 1) || (ReceiveVisionData.data.FireFlag == 0 && RC_CtrlData.mouse.press_l)){
 			Aim_Data.AimShoot = AimFire;}
 	}
 }
@@ -231,10 +226,10 @@ void Detect_Shoot(){
     if(DeviceState.Pluck_State != Device_Online || DeviceState.Shoot_State[LEFT] != Device_Online || DeviceState.Shoot_State[RIGHT] != Device_Online)
          SHOOT.Action = SHOOT_STOP;
     if(SHOOT.Action != SHOOT_STOP){
-				 if(SHOOT.Action == SHOOT_RUNNING){
+			if(SHOOT.Action == SHOOT_RUNNING){
          if(ABS( Pluck_Motor.Speed ) <= 15)
              Stuck_time++;
-	 }
+			}
      if(Stuck_time >= 50){
          SHOOT.Action = SHOOT_STUCKING;
          Stuck_time++;
@@ -245,51 +240,31 @@ void Detect_Shoot(){
 		 }
 	}
 }
-        float Recover,Remain,Consumption,shoot_speed,K = 2;
-	      uint16_t ShootTime,shoot_time;
-				uint8_t reduction_ratio = 72,caliper = 12;
+float cooling,heat_now,heat_limit,Consumption,shoot_speed,K = 2;
+uint16_t ShootTime,shoot_time;
+uint8_t reduction_ratio = 36,caliper = 12;
 void ShootHeat_Limit(){
-	      Recover = (float)Referee_data_Rx.heat_limit_recover;
-	      Remain  = (float)Referee_data_Rx.heat_limit_remain;
-	      if(Remain > 2000){
-				 Remain  = 0;
-				}
-				Consumption = 10.0;
-//					if(Referee_data_Rx.game_state == 1){
-								if(shoot_time == 0){
-										ShootTime = (Remain + K * Recover) * 10;// µ¥Î» /100ms
-										
-										//·Ö¼¶ÉäËÙ
-									if(Remain > 100){
-											shoot_speed = (15 * Remain - Recover - 5 * Consumption) / (Consumption * ShootTime/100.0) + Recover / Consumption;
-									}else{
-											shoot_speed = (15 * Remain - Recover - 4 * Consumption) / (Consumption * ShootTime / 100.0) + Recover / Consumption;
-										}
-										
-								}
-								else if(0 < shoot_time && Remain > 250 ){
-								SHOOT.Ref_2006 = 9000;
-								}
-								else if(0 < shoot_time && shoot_time < ShootTime){
-											SHOOT.Ref_2006 = shoot_speed * reduction_ratio * 60 / caliper ;//ÆÚÍû=ÆÚÍûµ¯Æµ * ¼õËÙ±È * 60Ãë / ²¦³ßÊý
-								}else{
-											SHOOT.Ref_2006 = Recover / Consumption * reduction_ratio * 60 / caliper;//ÆÚÍû = ÀäÈ´ËÙÂÊ / µ¥·¢ÏûºÄÈÈÁ¿ * ¼õËÙ±È * 60Ãë / ²¦³ßÊý
-							
-								}
-								
-								if(shoot_time < ShootTime){
-									shoot_time++;
-								}
-							//Î´Éä»÷
-								if(SHOOT.Action != SHOOT_RUNNING){
-									shoot_time = 0;
-
-									shoot_speed = 0;				
-								}
-
-	
-//	}
-					
+	heat_limit = Referee_data_Rx.heat_limit * 10;
+	cooling = (float)Referee_data_Rx.heat_cooling;
+	heat_now  = (float)Referee_data_Rx.heat_now;
+	Consumption = 10.0;//æ¶ˆè€—
+	if(heat_limit - heat_now > 100){
+		shoot_speed = 22;
+	} else if (100 > (heat_limit - heat_now) && (heat_limit - heat_now) > 30){
+		shoot_speed = (10 * heat_limit + 10 * cooling * shoot_time / 1000 - cooling) / (10 * Consumption * shoot_time / 1000);	
+	} else {
+		shoot_speed =  cooling / Consumption;	
+	}
+		SHOOT.Ref_2006 = shoot_speed * reduction_ratio * 60 / caliper ;//è½¬é€Ÿ = æœŸæœ›å¼¹é¢‘ * å‡é€Ÿæ¯” * 60s / æ‹¨é½¿æ•°
+	if( (GimbalCtrl == gAim && ReceiveVisionData.data.FireFlag == 1) || SHOOT.Action == SHOOT_RUNNING){
+		shoot_time ++ ;	
+	} else {
+		shoot_time -- ;
+	}
+	if(SHOOT.Action != SHOOT_RUNNING){
+		shoot_time = 0;
+		shoot_speed = 0;				
+	}
 }
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (hcan->Instance == CAN1){
