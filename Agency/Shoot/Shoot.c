@@ -240,32 +240,40 @@ void Detect_Shoot(){
 		 }
 	}
 }
+/**
+ * @brief 计算电机转速与弹频的关系
+ * @param target_freq 目标弹频 (Hz)，默认 20Hz
+ * @return uint32_t 计算后的转速限制值 (RPM) * 
+ * @note 转速最大为5400RPM时，弹频即可达到20Hz reduction_ratio 减速比 caliper 拨齿数 shoot_speed 弹频
+ * @see SHOOT.Ref[2006] / 36 / 60 * 8 <= 20  转速 = 期望弹频 * 减速比 * 60s / 拨齿数
+ * @warning 输入参数超出范围可能导致电机失控
+ */
 float cooling,heat_now,heat_limit,Consumption,shoot_speed,K = 2;
 uint16_t ShootTime,shoot_time;
-uint8_t reduction_ratio = 36,caliper = 12;
+uint8_t reduction_ratio = 36.0,caliper = 12.0;
 void ShootHeat_Limit(){
-	heat_limit = Referee_data_Rx.heat_limit * 10;
-	cooling = (float)Referee_data_Rx.heat_cooling;
-	heat_now  = (float)Referee_data_Rx.heat_now;
-	Consumption = 10.0;//消耗
+	heat_limit = Referee_data_Rx.heat_limit;
+	cooling = Referee_data_Rx.heat_cooling;
+	heat_now = Referee_data_Rx.heat_now;
+	Consumption = 10.0f;//消耗
 	if(heat_limit - heat_now > 100){
-		shoot_speed = 22;
-	} else if (100 > (heat_limit - heat_now) && (heat_limit - heat_now) > 30){
-		shoot_speed = (10 * heat_limit + 10 * cooling * shoot_time / 1000 - cooling) / (10 * Consumption * shoot_time / 1000);	
+		shoot_speed = 23.0f;
+	} else if (100 > (heat_limit - heat_now) && (heat_limit - heat_now) > 50){
+		shoot_speed = (10.0f * heat_limit + 10.0f * cooling * shoot_time / 1000.0f - cooling) / (10.0f * Consumption * shoot_time / 1000.0f);	
 	} else {
 		shoot_speed =  cooling / Consumption;	
 	}
-		SHOOT.Ref_2006 = shoot_speed * reduction_ratio * 60 / caliper ;//转速 = 期望弹频 * 减速比 * 60s / 拨齿数
 	if( (GimbalCtrl == gAim && ReceiveVisionData.data.FireFlag == 1) || SHOOT.Action == SHOOT_RUNNING){
 		shoot_time ++ ;	
 	} else {
 		shoot_time -- ;
 	}
 	if(SHOOT.Action != SHOOT_RUNNING){
-		shoot_time = 0;
 		shoot_speed = 0;				
 	}
+	SHOOT.Ref_2006 = shoot_speed * reduction_ratio * 60.0f / caliper ;//转速 = 期望弹频 * 减速比 * 60s / 拨齿数
 }
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (hcan->Instance == CAN1){
     uint16_t CAN1_ID = CAN_Receive_DataFrame(&hcan1, CAN1_buff);

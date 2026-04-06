@@ -3,7 +3,7 @@
 <title>Static Call Graph - [C_Board_Standard_Robot\C_Board_Standard_Robot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image C_Board_Standard_Robot\C_Board_Standard_Robot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Mon Mar 30 19:50:28 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 6160001: Last Updated: Wed Apr  1 12:56:27 2026
 <BR><P>
 <H3>Maximum Stack Usage =        280 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1232,7 +1232,7 @@ Global Symbols
 <BR><BR>[Called By]<UL><LI><a href="#[b1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_CAN_IRQHandler
 </UL>
 
-<P><STRONG><a name="[f3]"></a>HAL_CAN_RxFifo1MsgPendingCallback</STRONG> (Thumb, 182 bytes, Stack size 8 bytes, gimbal.o(.text.HAL_CAN_RxFifo1MsgPendingCallback))
+<P><STRONG><a name="[f3]"></a>HAL_CAN_RxFifo1MsgPendingCallback</STRONG> (Thumb, 232 bytes, Stack size 8 bytes, gimbal.o(.text.HAL_CAN_RxFifo1MsgPendingCallback))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = HAL_CAN_RxFifo1MsgPendingCallback &rArr; CAN_Receive_DataFrame &rArr; HAL_CAN_GetRxMessage
 </UL>
 <BR>[Calls]<UL><LI><a href="#[df]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Feed_Dog
@@ -2590,8 +2590,8 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[7a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Shoot_Task
 </UL>
 
-<P><STRONG><a name="[1f5]"></a>ShootHeat_Limit</STRONG> (Thumb, 388 bytes, Stack size 8 bytes, shoot.o(.text.ShootHeat_Limit))
-<BR><BR>[Stack]<UL><LI>Max Depth = 8<LI>Call Chain = ShootHeat_Limit
+<P><STRONG><a name="[1f5]"></a>ShootHeat_Limit</STRONG> (Thumb, 388 bytes, Stack size 16 bytes, shoot.o(.text.ShootHeat_Limit))
+<BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = ShootHeat_Limit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;ShootRef_Set
 </UL>
@@ -5064,7 +5064,7 @@ Local Symbols
 <BR>[Called By]<UL><LI><a href="#[7b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;usb_task
 </UL>
 
-<P><STRONG><a name="[238]"></a>UsbSendImuData</STRONG> (Thumb, 164 bytes, Stack size 8 bytes, usb_task.o(.text.UsbSendImuData))
+<P><STRONG><a name="[238]"></a>UsbSendImuData</STRONG> (Thumb, 148 bytes, Stack size 8 bytes, usb_task.o(.text.UsbSendImuData))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = UsbSendImuData &rArr; USB_Transmit &rArr; CDC_Transmit_FS &rArr; USBD_CDC_TransmitPacket &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer
 </UL>
 <BR>[Calls]<UL><LI><a href="#[235]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_Transmit

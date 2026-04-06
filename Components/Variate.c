@@ -12,7 +12,10 @@ GM6020_TypeDef Gimbal_Motor[GIMBAL_SUM];
 AIM_Typedef Aim_Data;
 
 uint8_t NormalModeFlag = 0,GyroscopeModeFlag = 0;
-Chassis_board_send_t Referee_data_Rx;
+
+Chassis_RefereeMsg_t Referee_data_Rx;
+Chassis_Msg_t Chassis_data_Rx;
+
 eSystemState SystemState;
 DeviceStates DeviceState;
 eAimAction AimAction         = AIM_STOP;

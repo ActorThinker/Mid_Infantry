@@ -196,9 +196,11 @@ void Detect_Gimbal(){
 	}
 }
 float Gimbal_Offset = -2.0f;
+float FFYawSpeed = 0 , K_FF = 0;
 void Gimbal_Pid(){
-	limit(ReceiveVisionData.data.Ref_Pitch,P_ADD_limit,P_LOSE_limit);	
-	if (GimbalCtrl == gAim){
+	limit(ReceiveVisionData.data.Ref_Pitch,P_ADD_limit,P_LOSE_limit);
+//	FFYawSpeed = Referee_data_Rx.ChassisSpeed / 100;
+	if(GimbalCtrl == gAim){
 		if(ReceiveVisionData.data.dis > 0.1f && DeviceState.PC_State == 1){ 
 			if(Gimbal_action.move_status == rotate){
 			PID_Calc(&Gimbal_Place_pid_Yaw[AIM],IMU.Angle_Yawcontinuous,IMU.VisionAngle + Gimbal_Offset);
@@ -310,22 +312,26 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan){
   if (hcan->Instance == CAN2){
     uint16_t CAN2_ID = CAN_Receive_DataFrame(&hcan2, CAN2_buff);
     switch (CAN2_ID){
-        case 0x101:
+			case 0x101:
 						Referee_data_Rx.game_state = CAN2_buff[0];
 						Referee_data_Rx.robot_color = CAN2_buff[1];
-						Referee_data_Rx.heat_limit = (uint8_t)CAN2_buff[2];
-						Referee_data_Rx.heat_cooling = (uint8_t)CAN2_buff[3];
-						Referee_data_Rx.heat_now = (uint16_t)(CAN2_buff[4] << 8 | CAN2_buff[5]);
-						Referee_data_Rx.bullet_speed  = (int16_t)(CAN2_buff[6] << 8 | CAN2_buff[7]);
-                    Feed_Dog(&Down_Dog);
-					break;
-        case 0x205: GM6020_Receive( &Gimbal_Motor[PITCH], CAN2_buff); 
-                    Feed_Dog(&Gimbal_Dog[PITCH]);
-          break;
-        case 0x206: GM6020_Receive( &Gimbal_Motor[YAW], CAN2_buff); 
-                    Feed_Dog(&Gimbal_Dog[YAW]);
-					break;
-        default:    break;
-    }
+						Referee_data_Rx.heat_limit = (uint16_t)(CAN2_buff[2] << 8 | CAN2_buff[3]);
+						Referee_data_Rx.heat_cooling = (uint16_t)(CAN2_buff[4] << 8 | CAN2_buff[5]);
+						Referee_data_Rx.heat_now = (uint16_t)(CAN2_buff[6] << 8 | CAN2_buff[7]);
+                    Feed_Dog(&Referee_Dog);
+				break;
+			case 0x102:
+						memcpy(&Chassis_data_Rx.Chassis_Speed,&CAN2_buff[0],sizeof(float));
+						memcpy(&Chassis_data_Rx.bullet_speed,&CAN2_buff[4],sizeof(float));
+										Feed_Dog(&Down_Dog);
+				break;
+			case 0x205: GM6020_Receive(&Gimbal_Motor[PITCH],CAN2_buff); 
+									Feed_Dog(&Gimbal_Dog[PITCH]);
+				break;
+			case 0x206: GM6020_Receive(&Gimbal_Motor[YAW],CAN2_buff); 
+									Feed_Dog(&Gimbal_Dog[YAW]);
+				break;
+			default:    break;
+		}
   }
 }

@@ -143,16 +143,20 @@ extern int AimAllow;
 
 /** 
  * @breief 下板数据结构 
- * @param 
+ * @param  0x101
  */
 typedef struct{
-	int8_t game_state;   //自身颜色
-	int8_t robot_color;   //自身等级
-	uint8_t heat_limit; 		//当前热量
-	uint8_t heat_cooling;//冷却热量
-	uint16_t heat_now;
-	uint16_t bullet_speed;//弹速
-} Chassis_board_send_t;
+	int8_t game_state;   //游戏状态
+	int8_t robot_color;  //自身颜色
+	uint16_t heat_limit; 	//热量上限
+	uint16_t heat_cooling;//冷却值
+	uint16_t heat_now;    //当前热量
+} Chassis_RefereeMsg_t;
+/* 0x102 */
+typedef struct{
+	float Chassis_Speed; //底盘角速度
+	float bullet_speed;//弹速
+} Chassis_Msg_t;
 /* 发送底盘数据 */
 typedef enum {
 	Gimbal_offline = 0,    
@@ -215,8 +219,9 @@ extern TaskHandle_t  Chassis_Task_handle, Gimbal_Task_handle, Shoot_Task_handle,
 /* ���Ź� */
 extern WatchDog_TypeDef Remote_Dog, IMU_Dog, Gimbal_Dog[GIMBAL_SUM], Shoot_Dog[FRIC_SUM], Pluck_Dog, Down_Dog, PC_Dog,Referee_Dog;
 /* ����ϵͳ */
-extern Chassis_board_send_t Referee_data_Rx;      // ���°�ͨ�ŷ���
-
+extern Chassis_RefereeMsg_t Referee_data_Rx;      // 0x101
+extern Chassis_Msg_t Chassis_data_Rx; //0x102
+	
 extern uint8_t NormalModeFlag,GyroscopeModeFlag;
 
 extern int16_t pluck_speed;
